@@ -1,4 +1,4 @@
-libgitlevtbus
-=============
+libgitlmvc
+==========
 
-Event bus based on Qt
+MVC framework for Qt
