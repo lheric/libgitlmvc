@@ -14,12 +14,15 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH    += ../../libgitlevtbus/src
+INCLUDEPATH    += ../../libgitlmvc/src \
+                  ../../libgitlevtbus/src
 
 SOURCES += \
     testcase.cpp
 
-LIBS += -L$${OUT_PWD}/../libs
 
-Debug:   LIBS += -lGitlEvtBusd
-Release: LIBS += -lGitlEvtBus
+
+LIBS += -L$${OUT_PWD}/..
+Debug:   LIBS += -lGitlMVCd
+Release: LIBS += -lGitlMVC
+
