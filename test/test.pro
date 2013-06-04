@@ -19,7 +19,7 @@ INCLUDEPATH    += ../../libgitlevtbus/src
 SOURCES += \
     testcase.cpp
 
-LIBS += -L$${OUT_PWD}/../libs
+LIBS += -L$${OUT_PWD}/..
 
 Debug:   LIBS += -lGitlEvtBusd
 Release: LIBS += -lGitlEvtBus

@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 Debug:   TARGET = GitlEvtBusd
 Release: TARGET = GitlEvtBus
 
-DESTDIR = $${OUT_PWD}/../libs
+DESTDIR = $${OUT_PWD}/..
 
 CONFIG   += console
 CONFIG   -= app_bundle
