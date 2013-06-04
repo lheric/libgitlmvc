@@ -1,40 +1,35 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2012-10-15T02:29:45
+# Project created by QtCreator 2012-11-02T17:27:25
 #
 #-------------------------------------------------
 
-QT       -= gui
+QT       += core
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-Debug:   TARGET = GitlMVCd
-Release: TARGET = GitlMVC
+#QT       += gui
+Debug:   TARGET = GitlEvtBusd
+Release: TARGET = GitlEvtBus
 
 DESTDIR = $${OUT_PWD}/..
 
-TEMPLATE = lib
+CONFIG   += console
+CONFIG   -= app_bundle
 CONFIG += staticlib
+TEMPLATE = lib
+#TEMPLATE = app
 
 SOURCES += \
-    gitlabstractcommand.cpp \
-    gitlcommandparameter.cpp \
-    gitlfrontcontroller.cpp
+    gitlevent.cpp \
+    gitleventbus.cpp \
+    gitlevtdata.cpp \
+    gitlmodualdelegate.cpp \
+    gitlmodual.cpp
 
 HEADERS += \
-    gitlabstractcommand.h \
-    gitlcommandparameter.h \
-    gitlcommandrequest.h \
-    gitlcommandrespond.h \
-    gitlfrontcontroller.h
-
-unix:!symbian {
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/local/lib
-    }
-    INSTALLS += target
-}
-
-
-INCLUDEPATH += ../include
-
+    gitldef.h \
+    gitlevent.h \
+    gitleventbus.h \
+    gitlmodual.h \
+    gitlevtdata.h \
+    gitlmodualdelegate.h
