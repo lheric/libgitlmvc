@@ -7,9 +7,8 @@
 QT       += core
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-#QT       += gui
-Debug:   TARGET = GitlEvtBusd
-Release: TARGET = GitlEvtBus
+Debug:   TARGET = GitlMVCd
+Release: TARGET = GitlMVC
 
 DESTDIR = $${OUT_PWD}/..
 
@@ -17,19 +16,17 @@ CONFIG   += console
 CONFIG   -= app_bundle
 CONFIG += staticlib
 TEMPLATE = lib
-#TEMPLATE = app
 
 SOURCES += \
-    gitlevent.cpp \
-    gitleventbus.cpp \
-    gitlevtdata.cpp \
-    gitlmodualdelegate.cpp \
-    gitlmodual.cpp
+    gitlfrontcontroller.cpp \
+    gitlcommandparameter.cpp \
+    gitlabstractcommand.cpp
 
 HEADERS += \
-    gitldef.h \
-    gitlevent.h \
-    gitleventbus.h \
-    gitlmodual.h \
-    gitlevtdata.h \
-    gitlmodualdelegate.h
+    gitlfrontcontroller.h \
+    gitlcommandrespond.h \
+    gitlcommandrequest.h \
+    gitlcommandparameter.h \
+    gitlabstractcommand.h
+
+INCLUDEPATH    += ../include
