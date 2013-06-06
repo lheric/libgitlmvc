@@ -9,45 +9,20 @@
 #include "gitlcommandrequest.h"
 #include "gitlcommandrespond.h"
 
-/*!
- * < command name , command class > pair
- */
+
 typedef struct GitlCommandFormat_s
 {
-    QString cCommandName;               ///< command name
-    const QMetaObject* pMetaObject;     ///< command class
+    QString cCommandName;
+    const QMetaObject* pMetaObject;
 }GitlCommandFormat;
 
 
 class GitlFrontController
 {
 public:
-    /*!
-     * \brief processRequest
-     * \param rcRequest
-     * \param rcRespond
-     * \return
-     */
     bool processRequest( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond );
-
-    /*!
-     * \brief addCommand register a command
-     * \param cCommandFormat
-     * \return
-     */
     bool addCommand(GitlCommandFormat cCommandFormat);
-
-    /*!
-     * \brief addCommand register a command
-     * \param cCommandFormat
-     * \param pMetaObject
-     * \return
-     */
     bool addCommand(const QString cCommandFormat, const QMetaObject* pMetaObject);
-
-    /*!
-     * \brief removeAllCommand remove all command
-     */
     void removeAllCommand();
 
 protected:

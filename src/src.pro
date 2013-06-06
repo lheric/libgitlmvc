@@ -7,6 +7,7 @@
 QT       += core
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+#QT       += gui
 Debug:   TARGET = GitlMVCd
 Release: TARGET = GitlMVC
 
@@ -16,11 +17,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 CONFIG += staticlib
 TEMPLATE = lib
-
-SOURCES += \
-    gitlfrontcontroller.cpp \
-    gitlcommandparameter.cpp \
-    gitlabstractcommand.cpp
+#TEMPLATE = app
 
 HEADERS += \
     gitlfrontcontroller.h \
@@ -29,4 +26,9 @@ HEADERS += \
     gitlcommandparameter.h \
     gitlabstractcommand.h
 
-INCLUDEPATH    += ../include
+SOURCES += \
+    gitlfrontcontroller.cpp \
+    gitlcommandparameter.cpp \
+    gitlabstractcommand.cpp
+
+
