@@ -19,6 +19,8 @@ CONFIG += staticlib
 TEMPLATE = lib
 #TEMPLATE = app
 
+INCLUDEPATH += ..\include
+
 HEADERS += \
     gitlfrontcontroller.h \
     gitlcommandrespond.h \
