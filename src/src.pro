@@ -7,7 +7,6 @@
 QT       += core
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-#QT       += gui
 Debug:   TARGET = GitlMVCd
 Release: TARGET = GitlMVC
 
@@ -17,20 +16,31 @@ CONFIG   += console
 CONFIG   -= app_bundle
 CONFIG += staticlib
 TEMPLATE = lib
-#TEMPLATE = app
 
-INCLUDEPATH += ..\include
+INCLUDEPATH += ../libgitlevtbus/src
+
+LIBS += -L$${OUT_PWD}/../libgitlevtbus
+
+Debug:   LIBS += -lGitlEvtBusd
+Release: LIBS += -lGitlEvtBus
 
 HEADERS += \
     gitlfrontcontroller.h \
     gitlcommandrespond.h \
     gitlcommandrequest.h \
     gitlcommandparameter.h \
-    gitlabstractcommand.h
+    gitlabstractcommand.h \
+    gitlmvcconst.h \
+    gitlcommandrequestevt.h \
+    gitlrefreshuirequestevt.h \
+    gitlview.h
 
 SOURCES += \
     gitlfrontcontroller.cpp \
     gitlcommandparameter.cpp \
-    gitlabstractcommand.cpp
+    gitlabstractcommand.cpp \
+    gitlcommandrequestevt.cpp \
+    gitlrefreshuirequestevt.cpp \
+    gitlview.cpp
 
 

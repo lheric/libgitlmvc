@@ -5,9 +5,33 @@
 #include "gitldef.h"
 #include "gitlabstractcommand.h"
 #include "gitlfrontcontroller.h"
-using namespace std;
+#include "gitlview.h"
+#include "gitlcommandrequestevt.h"
 
-///
+/// model
+
+
+/// view
+class TestView : public GitlView
+{
+public:
+    TestView()
+    {
+    }
+
+    virtual void onGitlUiUpdate(GitlRefreshUIRequestEvt& rcEvt)
+    {
+        m_strViewString = rcEvt.getParameter("string_to_display").toString();
+    }
+
+    ADD_CLASS_FIELD_NOSETTER(QString, strViewString, getViewString)
+};
+
+
+/// event
+
+
+/// command
 class TestCommand : public GitlAbstractCommand
 {
     Q_OBJECT
@@ -15,7 +39,7 @@ public:
     Q_INVOKABLE explicit TestCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
     Q_INVOKABLE bool execute( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond )
     {
-        rcRespond.setParameter("test_para", true);
+        rcRespond.setParameter("string_to_display", "Hello GitlMVC");
         return true;
     }
 
@@ -30,15 +54,19 @@ class TestCase : public QObject
 private slots:
     void basicTest()
     {
+        /// view
+        TestView cView;
+
+        /// controller
         GitlFrontController* pcFC = GitlFrontController::getInstance();
+        pcFC->addCommand("show_string_command", &TestCommand::staticMetaObject);
 
-        pcFC->addCommand("test_command_name", &TestCommand::staticMetaObject);
+        /// event
+        GitlCommandRequestEvt cRequestEvt("show_string_command");
+        cRequestEvt.dispatch();
 
-        GitlCommandRequest cRequest; GitlCommandRespond cRespond;
-        cRequest.setParameter("command_name", "test_command_name");
-        pcFC->processRequest(cRequest, cRespond);
-
-        QVERIFY(cRespond.getParameter("test_para").toBool());
+        /// verify
+        QVERIFY(cView.getViewString()=="Hello GitlMVC");
     }
 
 

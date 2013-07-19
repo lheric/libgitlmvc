@@ -22,7 +22,7 @@ SOURCES += \
 
 
 
-LIBS += -L$${OUT_PWD}/..
-Debug:   LIBS += -lGitlMVCd
-Release: LIBS += -lGitlMVC
+LIBS += -L$${OUT_PWD}/.. -L$${OUT_PWD}/../libgitlevtbus
+Debug:   LIBS += -lGitlMVCd -lGitlEvtBusd
+Release: LIBS += -lGitlMVC  -lGitlEvtBus
 

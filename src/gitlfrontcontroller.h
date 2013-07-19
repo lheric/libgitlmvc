@@ -8,6 +8,7 @@
 #include "gitldef.h"
 #include "gitlcommandrequest.h"
 #include "gitlcommandrespond.h"
+#include "gitlmodual.h"
 
 
 typedef struct GitlCommandFormat_s
@@ -17,9 +18,13 @@ typedef struct GitlCommandFormat_s
 }GitlCommandFormat;
 
 
-class GitlFrontController
+class GitlFrontController : public GitlModual
 {
 public:
+    virtual ~GitlFrontController() {}
+    
+    virtual bool detonate(GitlEvent& rcEvt);
+    
     bool processRequest( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond );
     bool addCommand(GitlCommandFormat cCommandFormat);
     bool addCommand(const QString cCommandFormat, const QMetaObject* pMetaObject);

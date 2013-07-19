@@ -1,12 +1,30 @@
 #include "gitlfrontcontroller.h"
 #include "gitlabstractcommand.h"
 
+#include <QSharedPointer>
 #include <QDebug>
+#include "gitlmvcconst.h"
+#include "gitlcommandrequestevt.h"
+#include "gitlrefreshuirequestevt.h"
 
 SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
 
 GitlFrontController::GitlFrontController()
 {
+    subscribeToEvtByName(GITL_EXE_COMMAND_REQUEST_EVENT);
+}
+
+
+bool GitlFrontController::detonate( GitlEvent& rcEvt)
+{
+    if(rcEvt.getEvtName() == GITL_EXE_COMMAND_REQUEST_EVENT)
+    {
+       GitlCommandRequestEvt& rcCmdRequestEvt = dynamic_cast<GitlCommandRequestEvt&>(rcEvt);
+       GitlRefreshUIRequestEvt cRefreshUIEvt;
+       processRequest(rcCmdRequestEvt.getCmdRequest(), cRefreshUIEvt.getCmdRespond());
+       cRefreshUIEvt.dispatch();
+    }
+    return true;
 }
 
 
@@ -32,6 +50,7 @@ void GitlFrontController::removeAllCommand()
 }
 
 
+
 bool GitlFrontController::processRequest( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond )
 {
 
@@ -40,7 +59,6 @@ bool GitlFrontController::processRequest( GitlCommandRequest& rcRequest, GitlCom
     if( rcRequest.hasParameter("command_name") )
     {
         vValue = rcRequest.getParameter("command_name");
-
     }
     else
     {
@@ -49,27 +67,23 @@ bool GitlFrontController::processRequest( GitlCommandRequest& rcRequest, GitlCom
     }
     QString strCommandName = vValue.toString();
     rcRespond.setParameter("command_name", strCommandName);
-
     for(int i = 0; i < m_cCommandTable.size(); i++) {
         // command name matched
         if( m_cCommandTable.at(i).cCommandName == strCommandName )
         {
 
-            //TODO BUG RAII Required for exception
             //create  command
             const QMetaObject* pMetaObj = m_cCommandTable.at(i).pMetaObject;
             QObject* pObj = pMetaObj->newInstance();
-            GitlAbstractCommand* pCmd = (GitlAbstractCommand *)pObj;
+            QSharedPointer<GitlAbstractCommand> pCmd(static_cast<GitlAbstractCommand *>(pObj));
             //execute command
             if( pCmd->execute(rcRequest, rcRespond) == false )
             {
                 qDebug() << QString("%1 Execution Failed!").arg(pMetaObj->className());
-                delete pCmd;
                 return false;
             }else
             {
                 qDebug() << QString("%1 Execution Success!").arg(pMetaObj->className());
-                delete pCmd;
                 return true;
             }
         }
