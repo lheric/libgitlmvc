@@ -10,7 +10,7 @@ Qt 5 with MSVC or GCC
 Overview
 ========
 
-View<---->Front Controller<---->Commands<---->Model
+View<====>Front Controller<====>Commands<====>Model
 
 There are basically 4 parts in this framework:
 * View: The user interface
