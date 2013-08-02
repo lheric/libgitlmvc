@@ -31,16 +31,17 @@ HEADERS += \
     gitlcommandparameter.h \
     gitlabstractcommand.h \
     gitlmvcconst.h \
-    gitlcommandrequestevt.h \
-    gitlrefreshuirequestevt.h \
-    gitlview.h
+    gitlview.h \
+    gitlupdateuievt.h \
+    gitlivkcmdevt.h \
+    gitlmodel.h
 
 SOURCES += \
     gitlfrontcontroller.cpp \
     gitlcommandparameter.cpp \
     gitlabstractcommand.cpp \
-    gitlcommandrequestevt.cpp \
-    gitlrefreshuirequestevt.cpp \
-    gitlview.cpp
+    gitlview.cpp \
+    gitlupdateuievt.cpp \
+    gitlivkcmdevt.cpp
 
 

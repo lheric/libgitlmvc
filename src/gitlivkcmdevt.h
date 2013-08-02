@@ -1,18 +1,18 @@
-#ifndef GITLCOMMANDREQUESTEVT_H
-#define GITLCOMMANDREQUESTEVT_H
+#ifndef GITLIVKCMDEVT_H
+#define GITLIVKCMDEVT_H
 
 #include <QString>
 #include "gitlevent.h"
 #include "gitlcommandrequest.h"
 
 
-class GitlCommandRequestEvt : public GitlEvent
+class GitlIvkCmdEvt : public GitlEvent
 {
     /// virtual copy pattern, please add this macro to all the subclass
-    VIRTUAL_COPY_PATTERN(GitlCommandRequestEvt)
+    VIRTUAL_COPY_PATTERN(GitlIvkCmdEvt)
 
 public:
-    GitlCommandRequestEvt(const QString& strCommandName);
+    GitlIvkCmdEvt(const QString& strCommandName);
 
     QString getCommandName();
     void setCommandName(const QString& strCommandName);
@@ -25,4 +25,4 @@ public:
     ADD_CLASS_FIELD_NOSETTER(GitlCommandRequest, cCmdRequest, getCmdRequest)
 };
 
-#endif // GITLCOMMANDREQUESTEVT_H
+#endif // GITLIVKCMDEVT_H
