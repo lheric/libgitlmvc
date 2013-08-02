@@ -6,7 +6,6 @@ template <class T>
 class GitlModel
 {
 public:
-    static T* m_instance;
     static T* getInstance()
     {
         QMutexLocker cLocker(&m_cMutex);
@@ -19,6 +18,7 @@ public:
 protected:
     GitlModel() {}
     static QMutex m_cMutex;
+    static T* m_instance;
 
 };
 
