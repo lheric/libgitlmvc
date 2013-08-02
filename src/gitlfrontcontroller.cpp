@@ -4,8 +4,8 @@
 #include <QSharedPointer>
 #include <QDebug>
 #include "gitlmvcconst.h"
-#include "gitlcommandrequestevt.h"
-#include "gitlrefreshuirequestevt.h"
+#include "gitlivkcmdevt.h"
+#include "gitlupdateuievt.h"
 
 SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
 
@@ -19,8 +19,8 @@ bool GitlFrontController::detonate( GitlEvent& rcEvt)
 {
     if(rcEvt.getEvtName() == GITL_EXE_COMMAND_REQUEST_EVENT)
     {
-       GitlCommandRequestEvt& rcCmdRequestEvt = dynamic_cast<GitlCommandRequestEvt&>(rcEvt);
-       GitlRefreshUIRequestEvt cRefreshUIEvt;
+       GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<GitlIvkCmdEvt&>(rcEvt);
+       GitlUpdateUIEvt cRefreshUIEvt;
        processRequest(rcCmdRequestEvt.getCmdRequest(), cRefreshUIEvt.getCmdRespond());
        cRefreshUIEvt.dispatch();
     }

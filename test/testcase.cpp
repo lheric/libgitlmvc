@@ -6,29 +6,30 @@
 #include "gitlabstractcommand.h"
 #include "gitlfrontcontroller.h"
 #include "gitlview.h"
-#include "gitlcommandrequestevt.h"
+#include "gitlivkcmdevt.h"
+#include "gitlmodel.h"
 
 /// model
+class TestModel: public GitlModel<TestModel>
+{
+    ADD_CLASS_FIELD(QString, strDataInModel, getDataInModel, setDataInModel)
 
+protected:
+    TestModel() {}
+    friend class GitlModel<TestModel>;
+};
 
 /// view
 class TestView : public GitlView
 {
 public:
-    TestView()
+    virtual void onUIUpdate(GitlUpdateUIEvt& rcEvt)
     {
+        m_strDataInView = rcEvt.getParameter("data_to_view").toString();
     }
-
-    virtual void onGitlUiUpdate(GitlRefreshUIRequestEvt& rcEvt)
-    {
-        m_strViewString = rcEvt.getParameter("string_to_display").toString();
-    }
-
-    ADD_CLASS_FIELD_NOSETTER(QString, strViewString, getViewString)
+    ADD_CLASS_FIELD_NOSETTER(QString, strDataInView, getDataInView)
 };
-
-
-/// event
+/// controller
 
 
 /// command
@@ -39,7 +40,9 @@ public:
     Q_INVOKABLE explicit TestCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
     Q_INVOKABLE bool execute( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond )
     {
-        rcRespond.setParameter("string_to_display", "Hello GitlMVC");
+        QString strDataToCommand = rcRequest.getParameter("data_to_command").toString();
+        TestModel::getInstance()->setDataInModel(strDataToCommand);
+        rcRespond.setParameter("data_to_view", strDataToCommand);
         return true;
     }
 
@@ -62,11 +65,12 @@ private slots:
         pcFC->addCommand("show_string_command", &TestCommand::staticMetaObject);
 
         /// event
-        GitlCommandRequestEvt cRequestEvt("show_string_command");
+        GitlIvkCmdEvt cRequestEvt("show_string_command");
+        cRequestEvt.setParameter("data_to_command", "Hello GitlMVC");
         cRequestEvt.dispatch();
 
         /// verify
-        QVERIFY(cView.getViewString()=="Hello GitlMVC");
+        QVERIFY(cView.getDataInView()=="Hello GitlMVC");
     }
 
 

@@ -11,13 +11,13 @@ bool GitlView::detonate(GitlEvent& rcEvt)
 {
     if(rcEvt.getEvtName() == GITL_UPDATE_UI_REQUEST_EVENT )
     {
-        GitlRefreshUIRequestEvt& rcUpdateUIEvt = static_cast<GitlRefreshUIRequestEvt&>(rcEvt);
-        onGitlUiUpdate(rcUpdateUIEvt);
+        GitlUpdateUIEvt& rcUpdateUIEvt = static_cast<GitlUpdateUIEvt&>(rcEvt);
+        onUIUpdate(rcUpdateUIEvt);
     }
     return true;
 }
 
-void GitlView::onGitlUiUpdate(GitlRefreshUIRequestEvt& rcEvt)
+void GitlView::onUIUpdate(GitlUpdateUIEvt& rcEvt)
 {
     qWarning() << "GitlView::onGitlUiUpdate NOT implemented yet.";
 }
