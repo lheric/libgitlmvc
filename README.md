@@ -1,7 +1,7 @@
 Introduction
 ============
 
-libgitlmvc is a MVC framework for Qt under BSD lisence.
+libgitlmvc is a C++ MVC framework for Qt under BSD lisence.
 
 How to build
 ============
