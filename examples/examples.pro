@@ -4,17 +4,27 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       -= gui
 
 TARGET = examples
+CONFIG   += console
+CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp
+SOURCES += main.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  +=
 
 FORMS    += mainwindow.ui
+
+
+INCLUDEPATH    += ../../libgitlmvc/src \
+                  ../../libgitlevtbus/src
+
+
+LIBS += -L$${OUT_PWD}/.. -L$${OUT_PWD}/../libgitlevtbus
+Debug:   LIBS += -lGitlMVCd -lGitlEvtBusd
+Release: LIBS += -lGitlMVC  -lGitlEvtBus

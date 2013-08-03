@@ -15,7 +15,7 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 INCLUDEPATH    += ../../libgitlmvc/src \
-                  ../../libgitlevtbus/src
+                  ../libgitlevtbus/src
 
 SOURCES += \
     testcase.cpp
