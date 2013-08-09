@@ -3,7 +3,7 @@
 
 #include <QString>
 #include "gitlevent.h"
-#include "gitlcommandrequest.h"
+#include "gitlcommandparameter.h"
 
 
 class GitlIvkCmdEvt : public GitlEvent
@@ -22,7 +22,7 @@ public:
     bool setParameter(const QString& strParam, const QVariant& rvValue);
 
 
-    ADD_CLASS_FIELD_NOSETTER(GitlCommandRequest, cCmdRequest, getCmdRequest)
+    ADD_CLASS_FIELD_NOSETTER(GitlCommandParameter, cAllParameters, getAllParameters)
 };
 
 #endif // GITLIVKCMDEVT_H

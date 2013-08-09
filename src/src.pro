@@ -26,8 +26,6 @@ Release: LIBS += -lGitlEvtBus
 
 HEADERS += \
     gitlfrontcontroller.h \
-    gitlcommandrespond.h \
-    gitlcommandrequest.h \
     gitlcommandparameter.h \
     gitlabstractcommand.h \
     gitlmvcconst.h \
@@ -39,7 +37,6 @@ HEADERS += \
 SOURCES += \
     gitlfrontcontroller.cpp \
     gitlcommandparameter.cpp \
-    gitlabstractcommand.cpp \
     gitlview.cpp \
     gitlupdateuievt.cpp \
     gitlivkcmdevt.cpp

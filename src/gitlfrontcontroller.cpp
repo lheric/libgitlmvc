@@ -4,7 +4,6 @@
 #include <QSharedPointer>
 #include <QDebug>
 #include "gitlmvcconst.h"
-#include "gitlivkcmdevt.h"
 #include "gitlupdateuievt.h"
 
 SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
@@ -20,39 +19,16 @@ bool GitlFrontController::detonate( GitlEvent& rcEvt)
     if(rcEvt.getEvtName() == GITL_EXE_COMMAND_REQUEST_EVENT)
     {
        GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<GitlIvkCmdEvt&>(rcEvt);
-       GitlUpdateUIEvt cRefreshUIEvt;
-       processRequest(rcCmdRequestEvt.getCmdRequest(), cRefreshUIEvt.getCmdRespond());
-       cRefreshUIEvt.dispatch();
+       onCommandRequestArrive(rcCmdRequestEvt);
     }
     return true;
 }
 
-
-bool GitlFrontController::addCommand(GitlCommandFormat cCommandFormat)
+void GitlFrontController::onCommandRequestArrive(GitlIvkCmdEvt &rcEvt)
 {
-    m_cCommandTable.push_back(cCommandFormat);
-    qDebug() << QString("%1 Register Success!").arg(cCommandFormat.pMetaObject->className());
-    return true;
-}
-bool GitlFrontController::addCommand(const QString cCommandName, const QMetaObject* pMetaObject)
-{
-    GitlCommandFormat cCommandFormat;
-    cCommandFormat.cCommandName = cCommandName;
-    cCommandFormat.pMetaObject  = pMetaObject;
-    m_cCommandTable.push_back(cCommandFormat);
-    qDebug() << QString("%1 Register Success!").arg(cCommandFormat.pMetaObject->className());
-    return true;
-}
-
-void GitlFrontController::removeAllCommand()
-{
-    m_cCommandTable.clear();
-}
-
-
-
-bool GitlFrontController::processRequest( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond )
-{
+    GitlUpdateUIEvt cRefreshUIEvt;
+    GitlCommandParameter& rcRequest = rcEvt.getAllParameters();
+    GitlCommandParameter& rcRespond = cRefreshUIEvt.getAllParameters();
 
     // find command by name
     QVariant vValue;
@@ -63,33 +39,56 @@ bool GitlFrontController::processRequest( GitlCommandRequest& rcRequest, GitlCom
     else
     {
         qWarning() << QString("No command name in request!");
-        return false;
+        return;
     }
     QString strCommandName = vValue.toString();
     rcRespond.setParameter("command_name", strCommandName);
-    for(int i = 0; i < m_cCommandTable.size(); i++) {
-        // command name matched
-        if( m_cCommandTable.at(i).cCommandName == strCommandName )
+    QHash<QString, QMetaObject*>::iterator i = m_cCommandTable.find(strCommandName);
+    if( i != m_cCommandTable.end() )
+    {
+        //command name matched
+        //create  command
+        const QMetaObject* pMetaObj = i.value();
+        QObject* pObj = pMetaObj->newInstance();
+        QSharedPointer<GitlAbstractCommand> pCmd(static_cast<GitlAbstractCommand *>(pObj));
+        //execute command
+        if( pCmd->execute(rcRequest, rcRespond) == false )
         {
-
-            //create  command
-            const QMetaObject* pMetaObj = m_cCommandTable.at(i).pMetaObject;
-            QObject* pObj = pMetaObj->newInstance();
-            QSharedPointer<GitlAbstractCommand> pCmd(static_cast<GitlAbstractCommand *>(pObj));
-            //execute command
-            if( pCmd->execute(rcRequest, rcRespond) == false )
-            {
-                qDebug() << QString("%1 Execution Failed!").arg(pMetaObj->className());
-                return false;
-            }else
-            {
-                qDebug() << QString("%1 Execution Success!").arg(pMetaObj->className());
-                return true;
-            }
+            qDebug() << QString("%1 Execution Failed!").arg(pMetaObj->className());
         }
+        else
+        {
+            cRefreshUIEvt.dispatch();
+            qDebug() << QString("%1 Execution Success!").arg(pMetaObj->className());
+        }
+        return;
+
     }
     qWarning() << QString("No matched command name found. %1").arg(strCommandName);
-    return false;
+    return;
+
+
+
+}
+
+
+bool GitlFrontController::registerCommand(const QString cCommandName, const QMetaObject *pMetaObject)
+{
+    if(m_cCommandTable.contains(cCommandName))
+    {
+        qCritical() << QString("%1 Register Fail! Duplicated command name!").arg(cCommandName);
+        return false;
+    }
+
+    QMetaObject *p = const_cast<QMetaObject *>(pMetaObject);
+    m_cCommandTable.insert(cCommandName, p);
+    qDebug() << QString("%1 Register Success!").arg(pMetaObject->className());
+    return true;
+}
+
+void GitlFrontController::unregisterAllCommand()
+{
+    m_cCommandTable.clear();
 }
 
 

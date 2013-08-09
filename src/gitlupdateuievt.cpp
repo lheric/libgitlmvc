@@ -8,25 +8,25 @@ GitlUpdateUIEvt::GitlUpdateUIEvt() :
 
 QString GitlUpdateUIEvt::getCommandName()
 {
-    return m_cCmdRespond.getParameter("command_name").toString();
+    return m_cAllParameters.getParameter("command_name").toString();
 }
 
 void GitlUpdateUIEvt::setCommandName(const QString& strCommandName)
 {
-    m_cCmdRespond.setParameter("command_name", strCommandName);
+    m_cAllParameters.setParameter("command_name", strCommandName);
 }
 
 bool GitlUpdateUIEvt::hasParameter(QString strParam) const
 {
-    return m_cCmdRespond.hasParameter(strParam);
+    return m_cAllParameters.hasParameter(strParam);
 }
 
 QVariant GitlUpdateUIEvt::getParameter(const QString& strParam ) const
 {
-    return m_cCmdRespond.getParameter(strParam);
+    return m_cAllParameters.getParameter(strParam);
 }
 
 bool GitlUpdateUIEvt::setParameter(const QString& strParam, const QVariant& rvValue)
 {
-    return m_cCmdRespond.setParameter(strParam, rvValue);
+    return m_cAllParameters.setParameter(strParam, rvValue);
 }

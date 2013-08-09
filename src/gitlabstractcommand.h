@@ -4,22 +4,40 @@
 #include <QObject>
 #include <QStringList>
 #include <QMap>
+#include <QDebug>
 #include <QVariant>
 #include "gitldef.h"
-
-#include "gitlcommandrequest.h"
-#include "gitlcommandrespond.h"
+#include "gitlcommandparameter.h"
 
 
-
+/*!
+ * \brief The GitlAbstractCommand class
+ *        All command should inherit this class and implement the execute function
+ */
 class GitlAbstractCommand : public QObject
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE explicit GitlAbstractCommand(QObject *parent = 0);
-    virtual ~GitlAbstractCommand();
-    /// implement this function in subclass
-    Q_INVOKABLE virtual bool execute( GitlCommandRequest& rcRequest, GitlCommandRespond& rcRespond );
+    Q_INVOKABLE explicit GitlAbstractCommand(QObject *parent = 0):
+        QObject(parent)
+    {
+    }
+
+    virtual ~GitlAbstractCommand()
+    {
+    }
+
+    /*!
+     * \brief execute All subclass should reimplement this function.
+     * \param rcInputArg this parameter is from UI(GitlView)
+     * \param rcOutputArg this parameter will be delivered to UI(GitlView)
+     * \return
+     */
+    Q_INVOKABLE virtual bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
+    {
+        qCritical() << "Please reimplement <GitlAbstractCommand::execute>";
+        return false;
+    }
 
 signals:
 
