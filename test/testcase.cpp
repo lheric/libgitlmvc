@@ -40,8 +40,9 @@ class TestCommand : public GitlAbstractCommand
 {
     Q_OBJECT
 public:
+    /// Q_INVOKABLE is necessary for constructor
     Q_INVOKABLE explicit TestCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
-    Q_INVOKABLE bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
+    bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
         QString strDataToCommand = rcInputArg.getParameter("data_to_command").toString();
         TestModel::getInstance()->setDataInModel(strDataToCommand);
