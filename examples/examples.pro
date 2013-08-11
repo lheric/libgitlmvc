@@ -24,7 +24,7 @@ FORMS    += mainwindow.ui
 
 
 INCLUDEPATH    += ../../libgitlmvc/src \
-                  ../../libgitlevtbus/src
+                  ../libgitlevtbus/src
 
 
 LIBS += -L$${OUT_PWD}/.. -L$${OUT_PWD}/../libgitlevtbus
