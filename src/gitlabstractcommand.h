@@ -6,7 +6,7 @@
 #include <QMap>
 #include <QDebug>
 #include <QVariant>
-#include "gitldef.h"
+#include "../libgitlevtbus/src/gitldef.h"
 #include "gitlcommandparameter.h"
 
 

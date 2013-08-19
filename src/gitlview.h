@@ -1,6 +1,6 @@
 #ifndef GITLVIEW_H
 #define GITLVIEW_H
-#include "gitlmodual.h"
+#include "../libgitlevtbus/src/gitlmodual.h"
 #include "gitlupdateuievt.h"
 class GitlView : public GitlModual
 {

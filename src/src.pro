@@ -17,8 +17,6 @@ CONFIG   -= app_bundle
 CONFIG += staticlib
 TEMPLATE = lib
 
-INCLUDEPATH += ../libgitlevtbus/src
-
 LIBS += -L$${OUT_PWD}/../libgitlevtbus
 
 Debug:   LIBS += -lGitlEvtBusd

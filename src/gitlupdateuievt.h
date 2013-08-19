@@ -1,6 +1,6 @@
 #ifndef GITLUPDATEUIEVT_H
 #define GITLUPDATEUIEVT_H
-#include "gitlevent.h"
+#include "../libgitlevtbus/src/gitlevent.h"
 #include "gitlcommandparameter.h"
 
 class GitlUpdateUIEvt : public GitlEvent

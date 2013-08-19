@@ -5,8 +5,8 @@
 #include <QMetaObject>
 #include <QHash>
 
-#include "gitldef.h"
-#include "gitlmodual.h"
+#include "../libgitlevtbus/src/gitldef.h"
+#include "../libgitlevtbus/src/gitlmodual.h"
 #include "gitlivkcmdevt.h"
 
 

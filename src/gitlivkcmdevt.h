@@ -2,7 +2,7 @@
 #define GITLIVKCMDEVT_H
 
 #include <QString>
-#include "gitlevent.h"
+#include "../libgitlevtbus/src/gitlevent.h"
 #include "gitlcommandparameter.h"
 
 
