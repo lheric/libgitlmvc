@@ -1,6 +1,6 @@
 Introduction
 ============
-[![Build Status](https://travis-ci.org/lheric/libgitlmvc.png?branch=master)](https://github.com/lheric/libgitlmvc)
+[![Build Status](https://travis-ci.org/lheric/libgitlmvc.png?branch=master)](https://travis-ci.org/lheric/libgitlmvc)
 
 libgitlmvc is a C++ MVC framework for Qt under BSD lisence.
 
