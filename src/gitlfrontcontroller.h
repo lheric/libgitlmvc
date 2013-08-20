@@ -44,7 +44,7 @@ public:
      * \param pMetaObject
      * \return
      */
-    bool registerCommand(const QString cCommandFormat, const QMetaObject *pMetaObject);
+    bool registerCommand(const QString cCommandName, const QMetaObject *pMetaObject);
 
     /*!
      * \brief unregisterAllCommand unregister all command
