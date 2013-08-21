@@ -50,6 +50,13 @@ void GitlFrontController::onCommandRequestArrive(GitlIvkCmdEvt &rcEvt)
         //create  command
         const QMetaObject* pMetaObj = i.value();
         QObject* pObj = pMetaObj->newInstance();
+        //if fail to create command class
+        if(pObj == NULL)
+        {
+            qCritical() << QString("Unable to create command class '%1'! Please ensure the constructor have Q_INVOKABLE macro.")
+                        .arg(pMetaObj->className());
+            return;
+        }
         QSharedPointer<GitlAbstractCommand> pCmd(static_cast<GitlAbstractCommand *>(pObj));
         //execute command
         if( pCmd->execute(rcRequest, rcRespond) == false )
