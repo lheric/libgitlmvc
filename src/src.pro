@@ -30,13 +30,15 @@ HEADERS += \
     gitlview.h \
     gitlupdateuievt.h \
     gitlivkcmdevt.h \
-    gitlmodel.h
+    gitlmodel.h \
+    gitlmtfrontcontroller.h
 
 SOURCES += \
     gitlfrontcontroller.cpp \
     gitlcommandparameter.cpp \
     gitlview.cpp \
     gitlupdateuievt.cpp \
-    gitlivkcmdevt.cpp
+    gitlivkcmdevt.cpp \
+    gitlmtfrontcontroller.cpp
 
 
