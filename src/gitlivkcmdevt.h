@@ -3,7 +3,6 @@
 
 #include <QString>
 #include "../libgitlevtbus/src/gitlevent.h"
-#include "gitlcommandparameter.h"
 
 
 class GitlIvkCmdEvt : public GitlEvent
@@ -17,12 +16,6 @@ public:
     QString getCommandName();
     void setCommandName(const QString& strCommandName);
 
-    bool hasParameter(QString strParam) const;
-    QVariant getParameter(const QString& strParam ) const;
-    bool setParameter(const QString& strParam, const QVariant& rvValue);
-
-
-    ADD_CLASS_FIELD_NOSETTER(GitlCommandParameter, cAllParameters, getAllParameters)
 };
 
 #endif // GITLIVKCMDEVT_H

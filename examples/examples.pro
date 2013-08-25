@@ -4,23 +4,26 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core gui
 
-QT       -= gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = examples
-CONFIG   += console
+CONFIG   -= console
 CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    mainwindow.cpp
 
 HEADERS  += \
     testcommand.h \
-    testmodel.h
+    testmodel.h \
+    mainwindow.h
 
-FORMS    += mainwindow.ui
+FORMS    += \
+    mainwindow.ui
 
 
 INCLUDEPATH    += ../../libgitlmvc/src \

@@ -27,8 +27,8 @@ bool GitlFrontController::detonate( GitlEvent& rcEvt)
 void GitlFrontController::onCommandRequestArrive(GitlIvkCmdEvt &rcEvt)
 {
     GitlUpdateUIEvt cRefreshUIEvt;
-    GitlCommandParameter& rcRequest = rcEvt.getAllParameters();
-    GitlCommandParameter& rcRespond = cRefreshUIEvt.getAllParameters();
+    GitlCommandParameter& rcRequest = rcEvt.getParameters();
+    GitlCommandParameter& rcRespond = cRefreshUIEvt.getParameters();
 
     // find command by name
     QVariant vValue;

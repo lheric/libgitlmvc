@@ -8,6 +8,7 @@
 #include "gitlview.h"
 #include "gitlivkcmdevt.h"
 #include "gitlmodel.h"
+#include "gitlmtfrontcontroller.h"
 
 /// model
 class TestModel: public GitlModel<TestModel>

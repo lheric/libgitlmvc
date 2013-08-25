@@ -7,8 +7,9 @@
 #include <QDebug>
 #include <QVariant>
 #include "../libgitlevtbus/src/gitldef.h"
-#include "gitlcommandparameter.h"
+#include "../libgitlevtbus/src/gitleventparam.h"
 
+typedef GitlEventParam GitlCommandParameter;
 
 /*!
  * \brief The GitlAbstractCommand class

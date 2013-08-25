@@ -1,9 +1,11 @@
 #include "gitlmtfrontcontroller.h"
 #include <QDebug>
+#include <iostream>
+SINGLETON_PATTERN_IMPLIMENT(GitlMTFrontController)
+
 GitlMTFrontController::GitlMTFrontController()
 {
     m_iMaxEvtInQue = 1000;
-    setModualName("multi_thread_front_controller");
     this->start();
 }
 
@@ -29,6 +31,7 @@ void GitlMTFrontController::run()
 {
     forever
     {
+
         /// get one event from the waiting queue
         m_cEvtQueMutex.lock();
         if( m_pcEvtQue.empty() )
@@ -39,7 +42,6 @@ void GitlMTFrontController::run()
         m_pcEvtQue.pop_front();
         m_cEvtQueMutex.unlock();
         m_cEvtQueNotFull.wakeAll();
-
 
         /// do command & exception handling
         GitlFrontController::detonate(*pcEvt);
