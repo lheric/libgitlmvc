@@ -87,6 +87,15 @@ bool GitlFrontController::registerCommand(const QString cCommandName, const QMet
         return false;
     }
 
+    QString strAbsCmdClassName = GitlAbstractCommand::staticMetaObject.className();
+    if( pMetaObject->className() == strAbsCmdClassName )
+    {
+        qCritical() << QString("Trying to register name '%1' for abstract class '%2'! "
+                               "You may miss the Q_OBJECT marco for the derived class of '%3'")
+                       .arg(cCommandName).arg(strAbsCmdClassName).arg(strAbsCmdClassName);
+        return false;
+    }
+
     QMetaObject *p = const_cast<QMetaObject *>(pMetaObject);
     m_cCommandTable.insert(cCommandName, p);
     qDebug() << QString("%1 Register Success!").arg(pMetaObject->className());
