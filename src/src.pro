@@ -14,9 +14,6 @@ DESTDIR = $${OUT_PWD}/..
 
 # c++11 enalbed
 CONFIG += c++11
-QMAKE_CXXFLAGS = -std=c++11 -stdlib=libc++ -mmacosx-version-min=10.7
-QMAKE_LFLAGS =   -std=c++11 -stdlib=libc++ -mmacosx-version-min=10.7
-
 CONFIG   += console
 CONFIG   += staticlib
 CONFIG   -= app_bundle
