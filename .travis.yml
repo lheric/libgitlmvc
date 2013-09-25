@@ -4,5 +4,5 @@ before_install:
   - yes | sudo apt-get install qtdeclarative5-dev
 
 script:
-  - qmake -qt=qt5 libgitlmvc.pro -r "CONFIG+=Release"
+  - qmake -qt=qt5 libgitlmvc.pro -r "CONFIG+=release"
   - make
