@@ -7,9 +7,6 @@
 QT       += core
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-debug:   TARGET = GitlMVCd
-release: TARGET = GitlMVC
-
 DESTDIR = $${OUT_PWD}/..
 
 # c++11 enalbed
@@ -22,8 +19,16 @@ TEMPLATE = lib
 
 LIBS += -L$${OUT_PWD}/../libgitlevtbus
 
-debug:   LIBS += -lGitlEvtBusd
-release: LIBS += -lGitlEvtBus
+
+CONFIG(debug, debug|release){
+    TARGET = GitlMVCd
+    LIBS += -lGitlEvtBusd
+}
+CONFIG(release, debug|release){
+    TARGET = GitlMVC
+    LIBS += -lGitlEvtBus
+}
+
 
 HEADERS += \
     gitlfrontcontroller.h \

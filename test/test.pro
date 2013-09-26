@@ -23,6 +23,10 @@ SOURCES += \
 
 
 LIBS += -L$${OUT_PWD}/.. -L$${OUT_PWD}/../libgitlevtbus
-debug:   LIBS += -lGitlMVCd -lGitlEvtBusd
-release: LIBS += -lGitlMVC  -lGitlEvtBus
 
+CONFIG(debug, debug|release){
+    LIBS += -lGitlMVCd -lGitlEvtBusd
+}
+CONFIG(release, debug|release){
+    LIBS += -lGitlMVC  -lGitlEvtBus
+}
