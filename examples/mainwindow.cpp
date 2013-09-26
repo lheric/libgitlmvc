@@ -20,6 +20,7 @@ void MainWindow::onUIUpdate(GitlUpdateUIEvt &rcEvt)
     if( rcEvt.hasParameter("data_to_view") )
     {
         QString strDataInView = rcEvt.getParameter("data_to_view").toString();
+        ui->mtTestLabel->setText(strDataInView);
         qDebug() << strDataInView;
     }
 }
