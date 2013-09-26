@@ -16,7 +16,7 @@ View<====>Front Controller<====>Commands<====>Model
 There are basically 4 parts in this framework:
 * View: The user interface
 * Front Controller(FC): Deal with all the request from View
-* Commands: According to different request, FC call different commands. One command realize a specific function.
+* Commands: According to different request, FC call different commands. One command implements one specific function.
 * Model: Store the state of the appliction, should only be changed by commands.
 
 There are some differences with the traditional MVC. 
