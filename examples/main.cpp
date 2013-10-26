@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     /// controller, the default one is used (GitlFrontController)
     GitlFrontController* pcFC = GitlMTFrontController::getInstance();
-    pcFC->registerCommand("show_string_command", &TestCommand::staticMetaObject);
+    pcFC->registerCommand("show_string_command", &FirParamCommand::staticMetaObject);
 
     /// view
     MainWindow cView;

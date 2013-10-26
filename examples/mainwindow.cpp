@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    listenToParams("data_to_view", MAKE_CALLBACK(MainWindow::onUIUpdate));
 }
 
 MainWindow::~MainWindow()
@@ -17,12 +19,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::onUIUpdate(GitlUpdateUIEvt &rcEvt)
 {
-    if( rcEvt.hasParameter("data_to_view") )
-    {
-        QString strDataInView = rcEvt.getParameter("data_to_view").toString();
-        ui->mtTestLabel->setText(strDataInView);
-        qDebug() << strDataInView;
-    }
+
+    QString strDataInView = rcEvt.getParameter("data_to_view").toString();
+    ui->mtTestLabel->setText(strDataInView);
+    qDebug() << strDataInView;
+
 }
 
 void MainWindow::on_mtTestButton_clicked()

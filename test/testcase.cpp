@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QtTest/QtTest>
 #include <QTest>
+#include <QStringList>
 #include "gitldef.h"
 #include "gitlabstractcommand.h"
 #include "gitlfrontcontroller.h"
@@ -16,7 +17,7 @@ class TestModel: public GitlModel<TestModel>
     ADD_CLASS_FIELD(QString, strDataInModel, getDataInModel, setDataInModel)
 
 protected:
-    TestModel() {}
+    TestModel() { m_strDataInModel = "Hello GitlMVC";}
     friend class GitlModel<TestModel>;
 };
 
@@ -24,12 +25,35 @@ protected:
 class TestView : public GitlView
 {
 public:
-    /// it receives the result from command
-    virtual void onUIUpdate(GitlUpdateUIEvt& rcEvt)
+    TestView()
     {
-        m_strDataInView = rcEvt.getParameter("data_to_view").toString();
+        listenToParams("fir_param", MAKE_CALLBACK(TestView::firParamListener));
+        listenToParams("sec_param", MAKE_CALLBACK(TestView::secParamListener));
+        listenToParams(QStringList()<<"fir_param"<<"sec_param",
+                       MAKE_CALLBACK(TestView::multiParamListener));
     }
-    ADD_CLASS_FIELD_NOSETTER(QString, strDataInView, getDataInView)
+
+
+    /// it receives the result from command
+    void firParamListener(GitlUpdateUIEvt& rcEvt)
+    {
+        m_strFirString = rcEvt.getParameter("fir_param").toString();
+    }
+    ADD_CLASS_FIELD_NOSETTER(QString, strFirString, getFirString)
+
+    void secParamListener(GitlUpdateUIEvt& rcEvt)
+    {
+        m_strSecString = rcEvt.getParameter("sec_param").toString();
+    }
+    ADD_CLASS_FIELD_NOSETTER(QString, strSecString, getSecString)
+
+
+    void multiParamListener(GitlUpdateUIEvt& rcEvt)
+    {
+        m_strMultiString = rcEvt.getParameter("fir_param").toString() + " " +
+                rcEvt.getParameter("sec_param").toString();
+    }
+    ADD_CLASS_FIELD_NOSETTER(QString, strMultiString, getMultiString)
 };
 
 /// controller
@@ -37,17 +61,44 @@ public:
 
 /// command, it manipulates the model and writes the result to output parameter. The output parameter will
 /// be pass to view automatically.
-class TestCommand : public GitlAbstractCommand
+class FirParamCommand : public GitlAbstractCommand
 {
     Q_OBJECT
 public:
     /// Q_INVOKABLE is necessary for constructor
-    Q_INVOKABLE explicit TestCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    Q_INVOKABLE explicit FirParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
-        QString strDataToCommand = rcInputArg.getParameter("data_to_command").toString();
-        TestModel::getInstance()->setDataInModel(strDataToCommand);
-        rcOutputArg.setParameter("data_to_view", strDataToCommand);
+        rcOutputArg.setParameter("fir_param", TestModel::getInstance()->getDataInModel());
+        return true;
+    }
+
+};
+
+class SecParamCommand : public GitlAbstractCommand
+{
+    Q_OBJECT
+public:
+    /// Q_INVOKABLE is necessary for constructor
+    Q_INVOKABLE explicit SecParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
+    {
+        rcOutputArg.setParameter("sec_param", "this is the second param");
+        return true;
+    }
+
+};
+
+class MultiParamCommand : public GitlAbstractCommand
+{
+    Q_OBJECT
+public:
+    /// Q_INVOKABLE is necessary for constructor
+    Q_INVOKABLE explicit MultiParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
+    {
+        rcOutputArg.setParameter("fir_param", TestModel::getInstance()->getDataInModel());
+        rcOutputArg.setParameter("sec_param", "this is the second param");
         return true;
     }
 
@@ -60,28 +111,59 @@ class TestCase : public QObject
     Q_OBJECT
 
 private slots:
-    void basicTest()
+    void initTestCase()
     {
-        /// view
-        TestView cView;
-
         /// controller
         GitlFrontController* pcFC = GitlFrontController::getInstance();
-        pcFC->registerCommand("show_string_command", &TestCommand::staticMetaObject);
-
-        /// event (in real case, this event should be dispatch from user interface, i.e. the views)
-        GitlIvkCmdEvt cRequestEvt("show_string_command");
-        cRequestEvt.setParameter("data_to_command", "Hello GitlMVC");
-        cRequestEvt.dispatch();
-
-        /// verify
-        ///
-        QVERIFY(TestModel::getInstance()->getDataInModel() == "Hello GitlMVC");
-        QVERIFY(cView.getDataInView()=="Hello GitlMVC");
+        pcFC->registerCommand("fir_param_command",   &FirParamCommand::staticMetaObject);
+        pcFC->registerCommand("sec_param_command",   &SecParamCommand::staticMetaObject);
+        pcFC->registerCommand("multi_param_command", &MultiParamCommand::staticMetaObject);
 
     }
 
 
+    void firParamTest()
+    {
+        /// view
+        TestView cView;
+        /// event (in real case, this event should be dispatch from user interface, i.e. the views)
+        GitlIvkCmdEvt cRequestEvt("fir_param_command");
+        cRequestEvt.dispatch();
+        /// verify
+        QVERIFY(cView.getFirString()=="Hello GitlMVC");
+        QVERIFY(cView.getSecString().isEmpty());
+    }
+
+    void secParamTest()
+    {
+        /// view
+        TestView cView;
+        /// event (in real case, this event should be dispatch from user interface, i.e. the views)
+        GitlIvkCmdEvt cRequestEvt("sec_param_command");
+        cRequestEvt.dispatch();
+        /// verify
+        QVERIFY(cView.getFirString().isEmpty());
+        QVERIFY(cView.getSecString()=="this is the second param");
+    }
+
+
+
+    ///TODO check multi parameter listening case
+    void multiParamsListening()
+    {
+        /// view
+        TestView cView;
+
+        /// event (in real case, this event should be dispatch from user interface, i.e. the views)
+        GitlIvkCmdEvt cRequestEvt("multi_param_command");
+        cRequestEvt.dispatch();
+
+        /// verify
+        QVERIFY(cView.getFirString()=="Hello GitlMVC");
+        QVERIFY(cView.getSecString()=="this is the second param");
+        QVERIFY(cView.getMultiString()=="Hello GitlMVC this is the second param");
+
+    }
 
 };
 

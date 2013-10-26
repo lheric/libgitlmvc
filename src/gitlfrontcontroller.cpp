@@ -10,7 +10,7 @@ SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
 
 GitlFrontController::GitlFrontController()
 {
-    subscribeToEvtByName(GITL_EXE_COMMAND_REQUEST_EVENT);
+    subscribeToEvtByName(GITL_EXE_COMMAND_REQUEST_EVENT, MAKE_CALLBACK(GitlFrontController::detonate));
 }
 
 

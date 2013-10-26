@@ -17,7 +17,7 @@ public:
     ~MainWindow();
 
     /// it receives the result from commands
-    virtual void onUIUpdate(GitlUpdateUIEvt& rcEvt);
+    void onUIUpdate(GitlUpdateUIEvt& rcEvt);
     
 private slots:
     void on_mtTestButton_clicked();

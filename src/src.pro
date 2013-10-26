@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DESTDIR = $${OUT_PWD}/..
 
 # c++11 enalbed
-CONFIG += c++11
+CONFIG   += c++11
 CONFIG   += console
 CONFIG   += staticlib
 CONFIG   -= app_bundle
