@@ -22,6 +22,7 @@ public:
     Q_INVOKABLE explicit GitlAbstractCommand(QObject *parent = 0):
         QObject(parent)
     {
+        m_bInWorkerThread = true;
     }
 
     virtual ~GitlAbstractCommand()
@@ -29,7 +30,7 @@ public:
     }
 
     /*!
-     * \brief execute All subclass should reimplement this function.
+     * \brief Execute All subclass should reimplement this function.
      * \param rcInputArg this parameter is from UI(GitlView)
      * \param rcOutputArg this parameter will be delivered to UI(GitlView)
      * \return
@@ -40,9 +41,12 @@ public:
         return false;
     }
 
-signals:
-
-public slots:
+    /*!
+     * \brief Dose this command designed to execute in worker thread.
+     * For computational intensive command, it should be set to ture.
+     * *****If it involves GUI classes creation, it MUST BE SET TO FALSE*****
+     */
+    ADD_CLASS_FIELD(bool, bInWorkerThread, getInWorkerThread, setInWorkerThread)
 
 };
 

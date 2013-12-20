@@ -1,6 +1,6 @@
 #include "gitldef.h"
 #include "gitlabstractcommand.h"
-#include "gitlmtfrontcontroller.h"
+#include "gitlfrontcontroller.h"
 #include "gitlview.h"
 #include "testcommand.h"
 #include <QDebug>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QApplication cApp(argc, argv);
 
     /// controller, the default one is used (GitlFrontController)
-    GitlFrontController* pcFC = GitlMTFrontController::getInstance();
+    GitlFrontController* pcFC = GitlFrontController::getInstance();
     pcFC->registerCommand("show_string_command", &FirParamCommand::staticMetaObject);
 
     /// view

@@ -3,6 +3,7 @@
 
 #include <QSharedPointer>
 #include <QDebug>
+#include <iostream>
 #include "gitlmvcconst.h"
 #include "gitlupdateuievt.h"
 
@@ -10,18 +11,58 @@ SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
 
 GitlFrontController::GitlFrontController()
 {
+    m_iMaxEvtInQue = 1000;
     subscribeToEvtByName(GITL_EXE_COMMAND_REQUEST_EVENT, MAKE_CALLBACK(GitlFrontController::detonate));
+    this->start();
 }
 
 
 bool GitlFrontController::detonate( GitlEvent& rcEvt)
 {
-    if(rcEvt.getEvtName() == GITL_EXE_COMMAND_REQUEST_EVENT)
+    GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<GitlIvkCmdEvt&>(rcEvt);
+    QString strCommandName = rcCmdRequestEvt.getCommandName();
+    QHash<QString, QMetaObject*>::iterator i = m_cCommandTable.find(strCommandName);
+    //command not found
+    if( i == m_cCommandTable.end() )
     {
-       GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<GitlIvkCmdEvt&>(rcEvt);
-       onCommandRequestArrive(rcCmdRequestEvt);
+        qWarning() << QString("No matched command name found. %1").arg(strCommandName);
+        return true;
     }
+    //create command
+    const QMetaObject* pMetaObj = i.value();
+    QObject* pObj = pMetaObj->newInstance();
+    //if fail to create command class
+    if(pObj == NULL)
+    {
+        qCritical() << QString("Unable to create command class '%1'! Please ensure the constructor have Q_INVOKABLE macro.")
+                    .arg(pMetaObj->className());
+        return true;
+    }
+
+    QSharedPointer<GitlAbstractCommand> pCmd(static_cast<GitlAbstractCommand *>(pObj));
+
+    /// execute it in worker thread or main(GUI) thread
+    if(pCmd->getInWorkerThread() == false)
+    {
+        onCommandRequestArrive(rcCmdRequestEvt);
+    }
+    else
+    {
+        /// pending for worker thread execution
+        m_cEvtQueMutex.lock();
+        if( m_pcEvtQue.size() >= m_iMaxEvtInQue )
+        {
+            std::cerr << "Too Many Events Pending...Waiting..." << std::endl;
+            m_cEvtQueNotFull.wait(&m_cEvtQueMutex);
+            std::cerr << "Event Queue Not Full...Moving on..." << std::endl;
+        }
+        m_pcEvtQue.push_back(rcEvt.clone());
+        m_cEvtQueMutex.unlock();
+        m_cEvtQueNotEmpty.wakeAll();
+    }
+
     return true;
+
 }
 
 void GitlFrontController::onCommandRequestArrive(GitlIvkCmdEvt &rcEvt)
@@ -31,17 +72,7 @@ void GitlFrontController::onCommandRequestArrive(GitlIvkCmdEvt &rcEvt)
     GitlCommandParameter& rcRespond = cRefreshUIEvt.getParameters();
 
     // find command by name
-    QVariant vValue;
-    if( rcRequest.hasParameter("command_name") )
-    {
-        vValue = rcRequest.getParameter("command_name");
-    }
-    else
-    {
-        qWarning() << QString("No command name in request!");
-        return;
-    }
-    QString strCommandName = vValue.toString();
+    QString strCommandName = rcEvt.getCommandName();
     rcRespond.setParameter("command_name", strCommandName);
     QHash<QString, QMetaObject*>::iterator i = m_cCommandTable.find(strCommandName);
     if( i != m_cCommandTable.end() )
@@ -107,5 +138,28 @@ void GitlFrontController::unregisterAllCommand()
     m_cCommandTable.clear();
 }
 
+void GitlFrontController::run()
+{
+    forever
+    {
+
+        /// get one event from the waiting queue
+        m_cEvtQueMutex.lock();
+        if( m_pcEvtQue.empty() )
+        {
+            m_cEvtQueNotEmpty.wait(&m_cEvtQueMutex);
+        }
+        GitlEvent* pcEvt = m_pcEvtQue.front();
+        m_pcEvtQue.pop_front();
+        m_cEvtQueMutex.unlock();
+        m_cEvtQueNotFull.wakeAll();
+
+        /// execute command
+        GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<GitlIvkCmdEvt&>(*pcEvt);
+        onCommandRequestArrive(rcCmdRequestEvt);
+        delete pcEvt;
+
+    }
+}
 
 

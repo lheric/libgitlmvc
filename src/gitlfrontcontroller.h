@@ -4,6 +4,10 @@
 
 #include <QMetaObject>
 #include <QHash>
+#include <QThread>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QWaitCondition>
 
 #include "../libgitlevtbus/src/gitldef.h"
 #include "../libgitlevtbus/src/gitlmodual.h"
@@ -16,7 +20,7 @@
  *  (according to the <command name>-<command class> table)
  */
 
-class GitlFrontController : public GitlModual
+class GitlFrontController : public GitlModual, public QThread
 {
 public:
     virtual ~GitlFrontController() {}
@@ -51,6 +55,8 @@ public:
      */
     void unregisterAllCommand();
 
+
+    virtual void run();
 protected:
     explicit GitlFrontController();
 
@@ -60,6 +66,14 @@ protected:
     ADD_CLASS_FIELD( CONCATE(QHash<QString,QMetaObject*>), cCommandTable, getCommandTable, setCommandTable)
 
     SINGLETON_PATTERN_DECLARE(GitlFrontController)
+
+
+    ADD_CLASS_FIELD_PRIVATE(QList<GitlEvent*>, pcEvtQue)
+    ADD_CLASS_FIELD_PRIVATE(QMutex, cEvtQueMutex)
+    ADD_CLASS_FIELD_PRIVATE(QWaitCondition, cEvtQueNotEmpty)
+    ADD_CLASS_FIELD_PRIVATE(QWaitCondition, cEvtQueNotFull)
+    ADD_CLASS_FIELD(int, iMaxEvtInQue, setMaxEvtInQue, getMaxEvtInQue)
+
 };
 
 #endif // GITLFRONTCONTROLLER_H

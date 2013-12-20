@@ -9,7 +9,7 @@
 #include "gitlview.h"
 #include "gitlivkcmdevt.h"
 #include "gitlmodel.h"
-#include "gitlmtfrontcontroller.h"
+
 
 /// model
 class TestModel: public GitlModel<TestModel>
@@ -66,7 +66,7 @@ class FirParamCommand : public GitlAbstractCommand
     Q_OBJECT
 public:
     /// Q_INVOKABLE is necessary for constructor
-    Q_INVOKABLE explicit FirParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    Q_INVOKABLE explicit FirParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
         rcOutputArg.setParameter("fir_param", TestModel::getInstance()->getDataInModel());
@@ -80,7 +80,7 @@ class SecParamCommand : public GitlAbstractCommand
     Q_OBJECT
 public:
     /// Q_INVOKABLE is necessary for constructor
-    Q_INVOKABLE explicit SecParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    Q_INVOKABLE explicit SecParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
         rcOutputArg.setParameter("sec_param", "this is the second param");
@@ -94,7 +94,7 @@ class MultiParamCommand : public GitlAbstractCommand
     Q_OBJECT
 public:
     /// Q_INVOKABLE is necessary for constructor
-    Q_INVOKABLE explicit MultiParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    Q_INVOKABLE explicit MultiParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
         rcOutputArg.setParameter("fir_param", TestModel::getInstance()->getDataInModel());
