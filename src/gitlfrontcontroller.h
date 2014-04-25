@@ -74,6 +74,8 @@ protected:
     ADD_CLASS_FIELD_PRIVATE(QWaitCondition, cEvtQueNotFull)
     ADD_CLASS_FIELD(int, iMaxEvtInQue, setMaxEvtInQue, getMaxEvtInQue)
 
+    ADD_CLASS_FIELD_PRIVATE(QMutex, cCmdExeMutex)   ///< ensure one command execution at one time
+
 };
 
 #endif // GITLFRONTCONTROLLER_H

@@ -67,6 +67,7 @@ bool GitlFrontController::detonate( GitlEvent& rcEvt)
 
 void GitlFrontController::onCommandRequestArrive(GitlIvkCmdEvt &rcEvt)
 {
+    QMutexLocker cCmdExeMutexLocker(&m_cCmdExeMutex);
     GitlUpdateUIEvt cRefreshUIEvt;
     GitlCommandParameter& rcRequest = rcEvt.getParameters();
     GitlCommandParameter& rcRespond = cRefreshUIEvt.getParameters();
