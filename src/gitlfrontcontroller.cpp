@@ -9,7 +9,8 @@
 
 SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
 
-GitlFrontController::GitlFrontController()
+GitlFrontController::GitlFrontController() :
+    m_cCmdExeMutex(QMutex::Recursive)
 {
     m_iMaxEvtInQue = 1000;
     subscribeToEvtByName(GITL_EXE_COMMAND_REQUEST_EVENT, MAKE_CALLBACK(GitlFrontController::detonate));
@@ -50,13 +51,13 @@ bool GitlFrontController::detonate( GitlEvent& rcEvt)
     {
         /// pending for worker thread execution
         m_cEvtQueMutex.lock();
-        if( m_pcEvtQue.size() >= m_iMaxEvtInQue )
+        if( m_pcWorkerThreadEvtQue.size() >= m_iMaxEvtInQue )
         {
             std::cerr << "Too Many Events Pending...Waiting..." << std::endl;
             m_cEvtQueNotFull.wait(&m_cEvtQueMutex);
             std::cerr << "Event Queue Not Full...Moving on..." << std::endl;
         }
-        m_pcEvtQue.push_back(rcEvt.clone());
+        m_pcWorkerThreadEvtQue.push_back(rcEvt.clone());
         m_cEvtQueMutex.unlock();
         m_cEvtQueNotEmpty.wakeAll();
     }
@@ -146,12 +147,12 @@ void GitlFrontController::run()
 
         /// get one event from the waiting queue
         m_cEvtQueMutex.lock();
-        if( m_pcEvtQue.empty() )
+        if( m_pcWorkerThreadEvtQue.empty() )
         {
             m_cEvtQueNotEmpty.wait(&m_cEvtQueMutex);
         }
-        GitlEvent* pcEvt = m_pcEvtQue.front();
-        m_pcEvtQue.pop_front();
+        GitlEvent* pcEvt = m_pcWorkerThreadEvtQue.front();
+        m_pcWorkerThreadEvtQue.pop_front();
         m_cEvtQueMutex.unlock();
         m_cEvtQueNotFull.wakeAll();
 

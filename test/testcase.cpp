@@ -89,6 +89,24 @@ public:
 
 };
 
+class NestedCommand : public GitlAbstractCommand
+{
+    Q_OBJECT
+public:
+    /// Q_INVOKABLE is necessary for constructor
+    Q_INVOKABLE explicit NestedCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
+    bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
+    {
+        GitlIvkCmdEvt cFirstNestedEvt("fir_param_command");
+        cFirstNestedEvt.dispatch();
+
+        GitlIvkCmdEvt cSecondNestedEvt("sec_param_command");
+        cSecondNestedEvt.dispatch();
+        return true;
+    }
+
+};
+
 class MultiParamCommand : public GitlAbstractCommand
 {
     Q_OBJECT
@@ -118,6 +136,7 @@ private slots:
         pcFC->registerCommand("fir_param_command",   &FirParamCommand::staticMetaObject);
         pcFC->registerCommand("sec_param_command",   &SecParamCommand::staticMetaObject);
         pcFC->registerCommand("multi_param_command", &MultiParamCommand::staticMetaObject);
+        pcFC->registerCommand("nested_command", &NestedCommand::staticMetaObject);
 
     }
 
@@ -163,6 +182,20 @@ private slots:
         QVERIFY(cView.getSecString()=="this is the second param");
         QVERIFY(cView.getMultiString()=="Hello GitlMVC this is the second param");
 
+    }
+
+    void nestedCommandTest()
+    {
+        /// view
+        TestView cView;
+
+        /// event (in real case, this event should be dispatch from user interface, i.e. the views)
+        GitlIvkCmdEvt cRequestEvt("nested_command");
+        cRequestEvt.dispatch();
+
+        /// verify
+        QVERIFY(cView.getFirString()=="Hello GitlMVC");
+        QVERIFY(cView.getSecString()=="this is the second param");
     }
 
 };
