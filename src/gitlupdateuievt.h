@@ -6,7 +6,7 @@
 class GitlUpdateUIEvt : public GitlEvent
 {
     /// virtual copy pattern, please add this macro to all the subclass
-    VIRTUAL_COPY_PATTERN(GitlUpdateUIEvt)
+    CLONABLE(GitlUpdateUIEvt)
 
 public:
     GitlUpdateUIEvt();

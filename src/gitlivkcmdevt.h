@@ -8,7 +8,7 @@
 class GitlIvkCmdEvt : public GitlEvent
 {
     /// virtual copy pattern, please add this macro to all the subclass
-    VIRTUAL_COPY_PATTERN(GitlIvkCmdEvt)
+    CLONABLE(GitlIvkCmdEvt)
 
 public:
     GitlIvkCmdEvt(const QString& strCommandName);
