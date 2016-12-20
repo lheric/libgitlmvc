@@ -1,6 +1,6 @@
 #ifndef GITLVIEW_H
 #define GITLVIEW_H
-#include "../libgitlevtbus/src/gitlmodual.h"
+#include "../libgitlevtbus/src/gitlmodule.h"
 #include "gitlupdateuievt.h"
 
 #include <functional>
@@ -49,7 +49,7 @@ public:
     }
 };
 
-class GitlView : public GitlModual
+class GitlView : public GitlModule
 {
 public:
     GitlView();

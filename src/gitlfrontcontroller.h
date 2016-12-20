@@ -10,7 +10,7 @@
 #include <QWaitCondition>
 
 #include "../libgitlevtbus/src/gitldef.h"
-#include "../libgitlevtbus/src/gitlmodual.h"
+#include "../libgitlevtbus/src/gitlmodule.h"
 #include "gitlivkcmdevt.h"
 
 
@@ -20,7 +20,7 @@
  *  (according to the <command name>-<command class> table)
  */
 
-class GitlFrontController : public GitlModual, public QThread
+class GitlFrontController : public GitlModule, public QThread
 {
 public:
     virtual ~GitlFrontController() {}
