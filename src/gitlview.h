@@ -52,7 +52,7 @@ public:
 class GitlView : public GitlModule
 {
 public:
-    GitlView();
+    GitlView(GitlEventBus* pcEventBus = NULL);
     virtual ~GitlView() {}
     bool detonate(GitlEvent& rcEvt);    
 

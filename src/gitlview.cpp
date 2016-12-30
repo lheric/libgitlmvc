@@ -1,7 +1,8 @@
 #include "gitlview.h"
 #include "gitlmvcconst.h"
 #include <QDebug>
-GitlView::GitlView()
+GitlView::GitlView(GitlEventBus *pcEventBus):
+    GitlModule(pcEventBus)
 {
     subscribeToEvtByName( GITL_UPDATE_UI_REQUEST_EVENT, MAKE_CALLBACK(GitlView::detonate) );
 }
