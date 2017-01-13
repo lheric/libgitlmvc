@@ -22,7 +22,7 @@ public:
     Q_INVOKABLE explicit GitlAbstractCommand(QObject *parent = 0):
         QObject(parent)
     {
-        m_bInWorkerThread = true;
+        m_bInWorkerThread = false;
     }
 
     virtual ~GitlAbstractCommand()
