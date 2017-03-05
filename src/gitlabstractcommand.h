@@ -37,6 +37,8 @@ public:
      */
     virtual bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
+        Q_UNUSED(rcInputArg)
+        Q_UNUSED(rcOutputArg)
         qCritical() << "Please reimplement <GitlAbstractCommand::execute>";
         return false;
     }

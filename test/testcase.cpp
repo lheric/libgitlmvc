@@ -69,6 +69,7 @@ public:
     Q_INVOKABLE explicit FirParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
+        Q_UNUSED(rcInputArg)
         rcOutputArg.setParameter("fir_param", TestModel::getInstance()->getDataInModel());
         return true;
     }
@@ -83,6 +84,7 @@ public:
     Q_INVOKABLE explicit SecParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
+        Q_UNUSED(rcInputArg)
         rcOutputArg.setParameter("sec_param", "this is the second param");
         return true;
     }
@@ -97,6 +99,9 @@ public:
     Q_INVOKABLE explicit NestedCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
+        Q_UNUSED(rcInputArg)
+        Q_UNUSED(rcOutputArg)
+
         GitlIvkCmdEvt cFirstNestedEvt("fir_param_command");
         cFirstNestedEvt.dispatch();
 
@@ -115,6 +120,7 @@ public:
     Q_INVOKABLE explicit MultiParamCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(false);}
     bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
     {
+        Q_UNUSED(rcInputArg)
         rcOutputArg.setParameter("fir_param", TestModel::getInstance()->getDataInModel());
         rcOutputArg.setParameter("sec_param", "this is the second param");
         return true;
