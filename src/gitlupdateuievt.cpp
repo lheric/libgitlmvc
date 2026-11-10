@@ -6,7 +6,7 @@ GitlUpdateUIEvt::GitlUpdateUIEvt() :
 {
 }
 
-QString GitlUpdateUIEvt::getCommandName()
+QString GitlUpdateUIEvt::getCommandName() const
 {
     return getParameter("command_name").toString();
 }

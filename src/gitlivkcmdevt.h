@@ -13,7 +13,7 @@ class GitlIvkCmdEvt : public GitlEvent
 public:
     GitlIvkCmdEvt(const QString& strCommandName);
 
-    QString getCommandName();
+    QString getCommandName() const;
     void setCommandName(const QString& strCommandName);
 
 };

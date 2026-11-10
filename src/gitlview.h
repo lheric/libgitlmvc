@@ -54,7 +54,7 @@ class GitlView : public GitlModule
 public:
     GitlView(GitlEventBus* pcEventBus = NULL);
     virtual ~GitlView() {}
-    bool detonate(GitlEvent& rcEvt);    
+    bool detonate(const GitlEvent& rcEvt);    
 
 
     bool listenToParams(const QString& rcParams, const UIUpdateCallback& rcCallback);

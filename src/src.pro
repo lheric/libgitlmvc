@@ -9,8 +9,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 DESTDIR = $${OUT_PWD}/..
 
-# c++11 enalbed
-CONFIG   += c++11
+# c++17 enabled (required by libgitlevtbus)
+CONFIG   += c++17
 CONFIG   += console
 CONFIG   += staticlib
 CONFIG   -= app_bundle

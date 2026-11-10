@@ -11,7 +11,7 @@ class GitlUpdateUIEvt : public GitlEvent
 public:
     GitlUpdateUIEvt();
 
-    QString getCommandName();
+    QString getCommandName() const;
     void setCommandName(const QString& strCommandName);
 };
 

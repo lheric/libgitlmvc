@@ -31,7 +31,7 @@ public:
      * \param rcEvt
      * \return
      */
-    virtual bool detonate(GitlEvent& rcEvt);
+    virtual bool detonate(const GitlEvent& rcEvt);
 
     /*!
      * \brief onCommandRequestArrive One command request is captured by front controller.

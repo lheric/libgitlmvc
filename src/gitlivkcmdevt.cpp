@@ -7,7 +7,7 @@ GitlIvkCmdEvt::GitlIvkCmdEvt(const QString& strCommandName) :
     GitlEvent::setParameter("command_name", strCommandName);
 }
 
-QString GitlIvkCmdEvt::getCommandName()
+QString GitlIvkCmdEvt::getCommandName() const
 {
     return GitlEvent::getParameter("command_name").toString();
 }

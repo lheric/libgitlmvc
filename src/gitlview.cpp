@@ -8,9 +8,11 @@ GitlView::GitlView(GitlEventBus *pcEventBus):
 }
 
 
-bool GitlView::detonate(GitlEvent& rcEvt)
+bool GitlView::detonate(const GitlEvent& rcEvt)
 {
-    GitlUpdateUIEvt& rcUpdateUIEvt = static_cast<GitlUpdateUIEvt&>(rcEvt);
+    /// the bus delivers a const event shared by all listeners, so hand the UI
+    /// callbacks a private copy they are free to modify
+    GitlUpdateUIEvt cUpdateUIEvt(static_cast<const GitlUpdateUIEvt&>(rcEvt));
 
     QMap<ParamNameList,UIUpdateCallback>::iterator iter= m_pafCallbacks.begin();
     /// check every callback functions
@@ -29,7 +31,7 @@ bool GitlView::detonate(GitlEvent& rcEvt)
         }
 
         if(findAllParams == true)
-            (iter.value())(rcUpdateUIEvt);      /// call
+            (iter.value())(cUpdateUIEvt);      /// call
 
         iter++;     /// check next
     }

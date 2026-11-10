@@ -18,9 +18,9 @@ GitlFrontController::GitlFrontController() :
 }
 
 
-bool GitlFrontController::detonate( GitlEvent& rcEvt)
+bool GitlFrontController::detonate(const GitlEvent& rcEvt)
 {
-    GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<GitlIvkCmdEvt&>(rcEvt);
+    const GitlIvkCmdEvt& rcCmdRequestEvt = dynamic_cast<const GitlIvkCmdEvt&>(rcEvt);
     QString strCommandName = rcCmdRequestEvt.getCommandName();
     QHash<QString, QMetaObject*>::iterator i = m_cCommandTable.find(strCommandName);
     //command not found
@@ -45,7 +45,9 @@ bool GitlFrontController::detonate( GitlEvent& rcEvt)
     /// execute it in worker thread or main(GUI) thread
     if(pCmd->getInWorkerThread() == false)
     {
-        onCommandRequestArrive(rcCmdRequestEvt);
+        /// the bus delivers a const event shared by all listeners; commands get a private copy
+        GitlIvkCmdEvt cCmdRequestEvt(rcCmdRequestEvt);
+        onCommandRequestArrive(cCmdRequestEvt);
     }
     else
     {
