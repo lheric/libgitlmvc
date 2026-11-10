@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  QT5_VERSION: '5.15.2'         # Windows only; Linux and macOS use the distro / Homebrew Qt 5
+  QT6_VERSION: '6.8.3'          # Qt 6 LTS (last open-source 6.8 release), Linux and Windows
+  # Qt 6.8.3's qyieldcpu.h calls __yield() without declaring it, which current Apple
+  # Clang (Xcode 16.3+) rejects on arm64. Newer Qt fixes the header, so macOS uses it.
+  QT6_VERSION_MACOS: '6.11.3'
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }} / Qt ${{ matrix.qt }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        qt: ['5', '6']
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      # ---- Install Qt ----------------------------------------------------------
+      - name: Install Qt 5 (Linux)
+        if: runner.os == 'Linux' && matrix.qt == '5'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qtbase5-dev qt5-qmake
+          QMAKE=$(ls /usr/lib/qt5/bin/qmake /usr/lib/*/qt5/bin/qmake 2>/dev/null | head -n1)
+          QMAKE=${QMAKE:-$(command -v qmake)}
+          echo "QMAKE=$QMAKE" >> "$GITHUB_ENV"
+
+      # Homebrew's qt@5 is native arm64; the official 5.15.2 binaries are x86_64 only.
+      - name: Install Qt 5 (macOS)
+        if: runner.os == 'macOS' && matrix.qt == '5'
+        run: |
+          brew install qt@5
+          echo "QMAKE=$(brew --prefix qt@5)/bin/qmake" >> "$GITHUB_ENV"
+
+      # Qt 6 on every OS, and Qt 5 on Windows, come from the Qt online installer.
+      - name: Install Qt ${{ matrix.qt }} (installer)
+        if: matrix.qt == '6' || runner.os == 'Windows'
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ matrix.qt == '5' && env.QT5_VERSION || (runner.os == 'macOS' && env.QT6_VERSION_MACOS || env.QT6_VERSION) }}
+          arch: ${{ runner.os == 'Windows' && (matrix.qt == '5' && 'win64_msvc2019_64' || 'win64_msvc2022_64') || '' }}
+          cache: true
+
+      - name: Set up MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      # ---- Build ---------------------------------------------------------------
+      # Out-of-source build in ./build (ignored by .gitignore). This builds libgitlevtbus,
+      # libgitlmvc, the tests and the example.
+      # debug_and_release is removed so binaries are not put in release/ subfolders on Windows.
+      - name: Build (Linux, macOS)
+        if: runner.os != 'Windows'
+        run: |
+          QMAKE=${QMAKE:-qmake}
+          "$QMAKE" -v
+          mkdir build && cd build
+          "$QMAKE" ../libgitlmvc.pro -r "CONFIG+=release" "CONFIG-=debug_and_release" "CONFIG+=sdk_no_version_check"
+          make -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)"
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          qmake -v
+          mkdir build && cd build
+          qmake ..\libgitlmvc.pro -r "CONFIG+=release" "CONFIG-=debug_and_release"
+          nmake
+
+      # ---- Test ----------------------------------------------------------------
+      # A Qt Test binary exits non-zero when any test fails.
+      # The example is a GUI application, so it is only built, not run.
+      - name: Run tests
+        shell: bash
+        working-directory: build
+        run: ./test/TestGitlEvtBus

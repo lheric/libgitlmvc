@@ -12,3 +12,7 @@
 *.la
 *.a
 *.user
+
+# Build directories
+build/
+docs/_build/
