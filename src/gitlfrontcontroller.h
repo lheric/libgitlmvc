@@ -72,9 +72,9 @@ protected:
     ADD_CLASS_FIELD_PRIVATE(QMutex, cEvtQueMutex)
     ADD_CLASS_FIELD_PRIVATE(QWaitCondition, cEvtQueNotEmpty)
     ADD_CLASS_FIELD_PRIVATE(QWaitCondition, cEvtQueNotFull)
-    ADD_CLASS_FIELD(int, iMaxEvtInQue, setMaxEvtInQue, getMaxEvtInQue)
+    ADD_CLASS_FIELD(int, iMaxEvtInQue, getMaxEvtInQue, setMaxEvtInQue)
 
-    ADD_CLASS_FIELD_PRIVATE(QMutex, cCmdExeMutex)   ///< ensure one command execution at one time
+    ADD_CLASS_FIELD_PRIVATE(QRecursiveMutex, cCmdExeMutex)   ///< ensure one command execution at one time
 
 };
 

@@ -9,8 +9,7 @@
 
 SINGLETON_PATTERN_IMPLIMENT(GitlFrontController)
 
-GitlFrontController::GitlFrontController() :
-    m_cCmdExeMutex(QMutex::Recursive)
+GitlFrontController::GitlFrontController()
 {
     m_iMaxEvtInQue = 1000;
     subscribeToEvtByName(GITL_EXE_COMMAND_REQUEST_EVENT, MAKE_CALLBACK(GitlFrontController::detonate));
