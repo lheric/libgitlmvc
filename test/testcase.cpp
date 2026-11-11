@@ -391,9 +391,9 @@ private slots:
 
         GateState::cGate.release(3);
         QVERIFY(GitlFrontController::getInstance()->waitForDone(5000));
-        QCOMPARE(GateState::cOrder, QStringList({"1", "2", "3"}));
+        QCOMPARE(GateState::cOrder.join('|'), QString("1|2|3"));
         QCOMPARE(GateState::iMaxRunning, 1);
-        QTRY_COMPARE(cView.m_cDone, QStringList({"1", "2", "3"}));
+        QTRY_COMPARE(cView.m_cDone.join('|'), QString("1|2|3"));
     }
 
     void differentQueuesRunInParallel()
@@ -413,8 +413,9 @@ private slots:
         GateState::cGate.release(1);
         requestGate("gate_worker", "w");
         QVERIFY(GitlFrontController::getInstance()->waitForDone(5000));
-        QTRY_COMPARE(cView.m_cDone, QStringList({"w"}));
-        QCOMPARE(cView.m_cRanOnMainThread, QList<bool>({false}));
+        QTRY_COMPARE(cView.m_cDone.join('|'), QString("w"));
+        QCOMPARE(cView.m_cRanOnMainThread.size(), 1);
+        QVERIFY(!cView.m_cRanOnMainThread.first());
     }
 
     void fullQueueRejectsRequests()
@@ -428,11 +429,11 @@ private slots:
         requestGate("gate_queue_a", "waiting");         /// fills the queue
         QVERIFY(cView.m_cRejected.isEmpty());
         requestGate("gate_queue_a", "rejected");        /// reported at once, no blocking
-        QCOMPARE(cView.m_cRejected, QStringList({"gate_queue_a"}));
+        QCOMPARE(cView.m_cRejected.join('|'), QString("gate_queue_a"));
 
         GateState::cGate.release(2);
         QVERIFY(pcFC->waitForDone(5000));
-        QCOMPARE(GateState::cOrder, QStringList({"running", "waiting"}));
+        QCOMPARE(GateState::cOrder.join('|'), QString("running|waiting"));
         pcFC->setMaxEvtInQue(1000);
     }
 
@@ -453,10 +454,10 @@ private slots:
         });
         QVERIFY(pcFC->shutdown(5000));
         cOpener.join();
-        QCOMPARE(GateState::cOrder, QStringList({"running"}));
+        QCOMPARE(GateState::cOrder.join('|'), QString("running"));
 
         requestGate("gate_queue_b", "late");            /// rejected after shutdown
-        QCOMPARE(cView.m_cRejected, QStringList({"gate_queue_b"}));
+        QCOMPARE(cView.m_cRejected.join('|'), QString("gate_queue_b"));
         QCOMPARE(GateState::started(), 1);
     }
 
