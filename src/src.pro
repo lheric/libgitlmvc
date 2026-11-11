@@ -37,7 +37,8 @@ HEADERS += \
     gitlview.h \
     gitlupdateuievt.h \
     gitlivkcmdevt.h \
-    gitlmodel.h
+    gitlmodel.h \
+    gitlexecpolicy.h
 
 SOURCES += \
     gitlfrontcontroller.cpp \

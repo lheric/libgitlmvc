@@ -41,7 +41,7 @@ listenToParams("data_to_view", [this](GitlUpdateUIEvt& rcEvt)
 
 - **Views never touch the model.** Every change goes through a command, and views learn about it from the command's output. That keeps the layers independent, so you can change one without affecting the others.
 - **One request, one command.** The front controller maps each request name to one command class (the front controller and command patterns). Each feature is a separate class, so you can add features one at a time.
-- **Heavy work off the GUI thread.** A command can run on a worker thread with one line, and its results still reach the views on the GUI thread.
+- **Heavy work off the GUI thread.** A command can run in the background, one at a time or in parallel on a thread pool, chosen with one argument at registration. Its results still reach the views on the GUI thread.
 
 ## Requirements
 
@@ -56,7 +56,7 @@ CI builds and tests Qt 5.15 and Qt 6 on Linux (GCC), macOS (Clang) and Windows (
 1. [Getting started](getting-started.md): build the library and write a complete application.
 2. [Commands](commands.md): the front controller, command parameters and chaining commands.
 3. [Views](views.md): listen to command results.
-4. [Threading](threading.md): run commands on a worker thread.
+4. [Threading](threading.md): run commands in the background, one at a time or in parallel.
 
 libgitlmvc is open source under the BSD license. The source code is on [GitHub](https://github.com/lheric/libgitlmvc).
 

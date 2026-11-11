@@ -13,6 +13,8 @@ pcFC->registerCommand("save_file_command", &SaveFileCommand::staticMetaObject);
 ```
 
 - Each name maps to one command class. Registering a name that's already taken fails and returns `false`.
+- Registration creates the command once, to check it can be created. A command class without `Q_OBJECT`, or without a `Q_INVOKABLE` constructor, fails here rather than at its first request.
+- A third argument chooses where the command runs, for example `GitlExec::Concurrent`. See [Threading](threading.md).
 - `unregisterAllCommand()` clears the table.
 - A request for a name that isn't registered logs a warning and does nothing else.
 
@@ -72,8 +74,8 @@ bool execute(GitlCommandParameter&, GitlCommandParameter&) override
 
 This way, small commands can be combined into larger ones. `NestedCommand` in `test/testcase.cpp` is a complete example.
 
-## One command at a time
+## Where commands run
 
-The front controller runs commands one at a time. A command that's requested while another is executing on a different thread waits for it to finish. Nested requests from inside `execute()` on the same thread run immediately, as shown above.
+By default, commands run one at a time, on the thread that dispatched the request. A command that's requested while another is executing on a different thread waits for it to finish. Nested requests from inside `execute()` on the same thread run immediately, as shown above. As a result, these commands don't need locks to protect the model from each other.
 
-As a result, commands don't need locks to protect the model from each other.
+Long commands can run in the background instead, either one at a time or in parallel: pass an execution policy to `registerCommand()`. See [Threading](threading.md).

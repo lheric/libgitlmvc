@@ -61,4 +61,4 @@ Every view receives every command output, and each view picks out the parameters
 
 ## Which thread callbacks run on
 
-View callbacks run on the thread that created the view, normally the GUI thread. That holds even when the command ran on a worker thread, so a callback can always update widgets safely. See [Threading](threading.md).
+View callbacks run on the thread that created the view, normally the GUI thread. That holds even when the command ran on a background thread, so a callback can always update widgets safely. See [Threading](threading.md).

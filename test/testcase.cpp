@@ -9,6 +9,12 @@
 #include "gitlview.h"
 #include "gitlivkcmdevt.h"
 #include "gitlmodel.h"
+#include "gitlmvcconst.h"
+#include <QSemaphore>
+#include <mutex>
+#include <QThread>
+#include <thread>
+#include <chrono>
 
 
 /// model
@@ -129,6 +135,95 @@ public:
 };
 
 
+/// background command for the threading tests: it records which commands overlap,
+/// then waits until the test opens the gate
+struct GateState
+{
+    static QSemaphore cGate;
+    static std::mutex cMutex;
+    static int iRunning, iMaxRunning, iStarted;
+    static QStringList cOrder;
+
+    static void reset()
+    {
+        cGate.acquire(cGate.available());
+        std::lock_guard<std::mutex> cLocker(cMutex);
+        iRunning = iMaxRunning = iStarted = 0;
+        cOrder.clear();
+    }
+    static int running()  { std::lock_guard<std::mutex> cLocker(cMutex); return iRunning; }
+    static int started()  { std::lock_guard<std::mutex> cLocker(cMutex); return iStarted; }
+};
+QSemaphore GateState::cGate;
+std::mutex GateState::cMutex;
+int GateState::iRunning = 0, GateState::iMaxRunning = 0, GateState::iStarted = 0;
+QStringList GateState::cOrder;
+
+class GateCommand : public GitlAbstractCommand
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE explicit GateCommand(QObject *parent = 0):GitlAbstractCommand(parent) {}
+    bool execute(GitlCommandParameter &rcInputArg, GitlCommandParameter &rcOutputArg)
+    {
+        QString strTag = rcInputArg.getParameter("tag").toString();
+        {
+            std::lock_guard<std::mutex> cLocker(GateState::cMutex);
+            ++GateState::iStarted;
+            GateState::iMaxRunning = qMax(GateState::iMaxRunning, ++GateState::iRunning);
+            GateState::cOrder << strTag;
+        }
+        bool bOpened = GateState::cGate.tryAcquire(1, 5000);
+        {
+            std::lock_guard<std::mutex> cLocker(GateState::cMutex);
+            --GateState::iRunning;
+        }
+        rcOutputArg.setParameter("gate_done", strTag);
+        rcOutputArg.setParameter("gate_on_main_thread",
+                                 QThread::currentThread() == QCoreApplication::instance()->thread());
+        return bOpened;
+    }
+};
+
+/// a command written the old way: it asks for the worker thread in its constructor
+class WorkerFlagCommand : public GitlAbstractCommand
+{
+    Q_OBJECT
+public:
+    Q_INVOKABLE explicit WorkerFlagCommand(QObject *parent = 0):GitlAbstractCommand(parent) {setInWorkerThread(true);}
+    bool execute(GitlCommandParameter &, GitlCommandParameter &) { return true; }
+};
+
+/// collects gate results and rejected requests, and the thread each callback ran on
+class GateView : public GitlView
+{
+public:
+    GateView()
+    {
+        listenToParams("gate_done", [this](GitlUpdateUIEvt& rcEvt)
+        {
+            m_cDone << rcEvt.getParameter("gate_done").toString();
+            m_cRanOnMainThread << rcEvt.getParameter("gate_on_main_thread").toBool();
+            m_bCallbacksOnMainThread &= QThread::currentThread() == QCoreApplication::instance()->thread();
+        });
+        listenToParams(GITL_COMMAND_ERROR_PARAM, [this](GitlUpdateUIEvt& rcEvt)
+        {
+            m_cRejected << rcEvt.getCommandName();
+        });
+    }
+    QStringList m_cDone;
+    QList<bool> m_cRanOnMainThread;
+    QStringList m_cRejected;
+    bool m_bCallbacksOnMainThread = true;
+};
+
+static void requestGate(const QString& strCommand, const QString& strTag)
+{
+    GitlIvkCmdEvt cRequestEvt(strCommand);
+    cRequestEvt.setParameter("tag", strTag);
+    cRequestEvt.dispatch();
+}
+
 /// test case
 class TestCase : public QObject
 {
@@ -143,6 +238,14 @@ private slots:
         pcFC->registerCommand("sec_param_command",   &SecParamCommand::staticMetaObject);
         pcFC->registerCommand("multi_param_command", &MultiParamCommand::staticMetaObject);
         pcFC->registerCommand("nested_command", &NestedCommand::staticMetaObject);
+
+        pcFC->setMaxThreadCount(4);
+        QVERIFY(pcFC->registerCommand("gate_concurrent", &GateCommand::staticMetaObject, GitlExec::Concurrent));
+        QVERIFY(pcFC->registerCommand("gate_queue_a",    &GateCommand::staticMetaObject, GitlExec::queue("a")));
+        QVERIFY(pcFC->registerCommand("gate_queue_a2",   &GateCommand::staticMetaObject, GitlExec::queue("a")));
+        QVERIFY(pcFC->registerCommand("gate_queue_b",    &GateCommand::staticMetaObject, GitlExec::queue("b")));
+        QVERIFY(pcFC->registerCommand("gate_worker",     &GateCommand::staticMetaObject, GitlExec::Worker));
+        QVERIFY(pcFC->registerCommand("worker_flag_command", &WorkerFlagCommand::staticMetaObject));
 
     }
 
@@ -246,6 +349,115 @@ private slots:
 
         QVERIFY(cView.unlistenToParams({"b","a","b"}));
         QVERIFY(!cView.isListenToParams({"a","b"}));
+    }
+
+    void registrationTest()
+    {
+        GitlFrontController* pcFC = GitlFrontController::getInstance();
+        /// a queue needs a name, and names are unique
+        QVERIFY(!pcFC->registerCommand("unnamed_queue", &GateCommand::staticMetaObject, GitlExec::queue("")));
+        QVERIFY(!pcFC->registerCommand("gate_queue_a", &GateCommand::staticMetaObject, GitlExec::Concurrent));
+        /// commands registered without a policy keep their old behaviour
+        QVERIFY(pcFC->getExecPolicy("fir_param_command") == GitlExec::Main);
+        QVERIFY(pcFC->getExecPolicy("worker_flag_command") == GitlExec::Worker);
+        QVERIFY(pcFC->getExecPolicy("gate_queue_a") == GitlExec::queue("a"));
+    }
+
+    void concurrentCommandsRunInParallel()
+    {
+        GateState::reset();
+        GateView cView;
+        requestGate("gate_concurrent", "1");
+        requestGate("gate_concurrent", "2");
+        QTRY_COMPARE(GateState::running(), 2);          /// both are inside execute() at once
+
+        GateState::cGate.release(2);
+        QVERIFY(GitlFrontController::getInstance()->waitForDone(5000));
+        QTRY_COMPARE(cView.m_cDone.size(), 2);          /// results arrive through the event loop
+        QVERIFY(!cView.m_cRanOnMainThread.contains(true));
+        QVERIFY(cView.m_bCallbacksOnMainThread);
+    }
+
+    void sameQueueRunsInOrder()
+    {
+        GateState::reset();
+        GateView cView;
+        requestGate("gate_queue_a",  "1");
+        requestGate("gate_queue_a2", "2");              /// another command, same queue
+        requestGate("gate_queue_a",  "3");
+        QTRY_COMPARE(GateState::started(), 1);
+        QTest::qWait(100);
+        QCOMPARE(GateState::started(), 1);              /// the others wait their turn
+
+        GateState::cGate.release(3);
+        QVERIFY(GitlFrontController::getInstance()->waitForDone(5000));
+        QCOMPARE(GateState::cOrder, QStringList({"1", "2", "3"}));
+        QCOMPARE(GateState::iMaxRunning, 1);
+        QTRY_COMPARE(cView.m_cDone, QStringList({"1", "2", "3"}));
+    }
+
+    void differentQueuesRunInParallel()
+    {
+        GateState::reset();
+        requestGate("gate_queue_a", "a");
+        requestGate("gate_queue_b", "b");
+        QTRY_COMPARE(GateState::running(), 2);
+        GateState::cGate.release(2);
+        QVERIFY(GitlFrontController::getInstance()->waitForDone(5000));
+    }
+
+    void workerRunsOffMainThread()
+    {
+        GateState::reset();
+        GateView cView;
+        GateState::cGate.release(1);
+        requestGate("gate_worker", "w");
+        QVERIFY(GitlFrontController::getInstance()->waitForDone(5000));
+        QTRY_COMPARE(cView.m_cDone, QStringList({"w"}));
+        QCOMPARE(cView.m_cRanOnMainThread, QList<bool>({false}));
+    }
+
+    void fullQueueRejectsRequests()
+    {
+        GitlFrontController* pcFC = GitlFrontController::getInstance();
+        GateState::reset();
+        GateView cView;
+        pcFC->setMaxEvtInQue(1);
+        requestGate("gate_queue_a", "running");
+        QTRY_COMPARE(GateState::running(), 1);
+        requestGate("gate_queue_a", "waiting");         /// fills the queue
+        QVERIFY(cView.m_cRejected.isEmpty());
+        requestGate("gate_queue_a", "rejected");        /// reported at once, no blocking
+        QCOMPARE(cView.m_cRejected, QStringList({"gate_queue_a"}));
+
+        GateState::cGate.release(2);
+        QVERIFY(pcFC->waitForDone(5000));
+        QCOMPARE(GateState::cOrder, QStringList({"running", "waiting"}));
+        pcFC->setMaxEvtInQue(1000);
+    }
+
+    /// must stay the last test: shutdown() is final
+    void shutdownDropsPendingRequests()
+    {
+        GitlFrontController* pcFC = GitlFrontController::getInstance();
+        GateState::reset();
+        GateView cView;
+        requestGate("gate_queue_b", "running");
+        QTRY_COMPARE(GateState::running(), 1);
+        requestGate("gate_queue_b", "dropped");
+
+        /// shutdown() waits for the running command, so open its gate from another thread
+        std::thread cOpener([]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            GateState::cGate.release(1);
+        });
+        QVERIFY(pcFC->shutdown(5000));
+        cOpener.join();
+        QCOMPARE(GateState::cOrder, QStringList({"running"}));
+
+        requestGate("gate_queue_b", "late");            /// rejected after shutdown
+        QCOMPARE(cView.m_cRejected, QStringList({"gate_queue_b"}));
+        QCOMPARE(GateState::started(), 1);
     }
 
 };

@@ -155,9 +155,17 @@ That covers the whole round trip. A command can also dispatch other `GitlIvkCmdE
 Threading
 =========
 
-By default, commands run on the main (GUI) thread when the request is dispatched. For long computations, call `setInWorkerThread(true)` in the command's constructor. The front controller then queues the request and runs it on its own worker thread, and only one command executes at a time.
+By default, commands run on the thread that dispatched the request, one at a time. Long commands can run in the background instead: choose a policy when you register them.
 
-A command that runs on the worker thread **must not create or touch GUI objects**.
+```c++
+pcFC->registerCommand("save_file",    &SaveFileCommand::staticMetaObject,    GitlExec::Worker);      // one at a time
+pcFC->registerCommand("thumbnail",    &ThumbnailCommand::staticMetaObject,   GitlExec::Concurrent);  // in parallel
+pcFC->registerCommand("export_video", &ExportVideoCommand::staticMetaObject, GitlExec::queue("io"));  // one at a time within "io"
+```
+
+All background commands share one bounded thread pool. A full queue rejects new requests instead of blocking the GUI thread, and `shutdown()` runs automatically when the application quits. `Concurrent` and queued commands can overlap with other commands, so protect any data they share. See the [threading docs](https://libgitlmvc.readthedocs.io/en/latest/threading.html).
+
+A command that runs in the background **must not create or touch GUI objects**.
 
 More examples
 =============

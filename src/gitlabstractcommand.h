@@ -45,6 +45,9 @@ public:
 
     /*!
      * \brief Dose this command designed to execute in worker thread.
+     * Read once, when the command is registered without a GitlExecPolicy:
+     * true means GitlExec::Worker, false GitlExec::Main. Prefer passing a policy to
+     * GitlFrontController::registerCommand().
      * For computational intensive command, it should be set to ture.
      * *****If it involves GUI classes creation, it MUST BE SET TO FALSE*****
      */
