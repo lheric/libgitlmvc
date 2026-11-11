@@ -204,6 +204,50 @@ private slots:
         QVERIFY(cView.getSecString()=="this is the second param");
     }
 
+    /// regression: ParamNameList::operator< was not a strict weak ordering, so QMap
+    /// could fail to find a parameter list that had been registered
+    void listenToSeveralParamListsTest()
+    {
+        GitlView cView;
+        const QList<QStringList> acLists = {
+            {"c","e"}, {"b","c"}, {"a","d"}
+        };
+        for(const QStringList& rcList : acLists)
+            cView.listenToParams(rcList, [](GitlUpdateUIEvt&) {});
+
+        for(const QStringList& rcList : acLists)
+            QVERIFY2(cView.isListenToParams(rcList), qPrintable(rcList.join(",")));
+
+        for(const QStringList& rcList : acLists)
+        {
+            QVERIFY2(cView.unlistenToParams(rcList), qPrintable(rcList.join(",")));
+            QVERIFY(!cView.isListenToParams(rcList));
+        }
+    }
+
+    /// a parameter list is a set: order and duplicates don't matter
+    void paramListIsSetTest()
+    {
+        GitlView cView;
+        int iFirst = 0, iSecond = 0;
+        cView.listenToParams(QStringList{"b","a"}, [&](GitlUpdateUIEvt&) { ++iFirst; });
+        QVERIFY(cView.isListenToParams({"a","b"}));
+        QVERIFY(cView.isListenToParams({"a","b","a"}));
+
+        /// the same set in another order replaces the first callback
+        cView.listenToParams(QStringList{"a","b"}, [&](GitlUpdateUIEvt&) { ++iSecond; });
+
+        GitlUpdateUIEvt cEvt;
+        cEvt.setParameter("a", 1);
+        cEvt.setParameter("b", 2);
+        cEvt.dispatch();
+        QCOMPARE(iFirst, 0);
+        QCOMPARE(iSecond, 1);
+
+        QVERIFY(cView.unlistenToParams({"b","a","b"}));
+        QVERIFY(!cView.isListenToParams({"a","b"}));
+    }
+
 };
 
 

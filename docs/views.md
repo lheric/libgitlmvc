@@ -45,13 +45,15 @@ listenToParams(QStringList() << "width" << "height",
                MAKE_CALLBACK(ImageInfoPanel::onSizeChanged));
 ```
 
+The list is treated as a set: order and repeated names don't matter, so `{"width", "height"}` and `{"height", "width"}` name the same listener.
+
 A view can register as many callbacks as it needs. One command output can trigger several of them. For example, if a view listens to `"width"`, to `"height"`, and to both together, an output containing both parameters runs all three callbacks.
 
 ## Stop listening
 
-- `unlistenToParams(list)` removes the callback registered for exactly that list of parameters.
+- `unlistenToParams(list)` removes the callback registered for that set of parameters.
 - `isListenToParams(list)` checks whether there is one.
-- Registering a callback for a list that already has one replaces the old callback.
+- Registering a callback for a set that already has one replaces the old callback.
 
 ## Many views
 

@@ -3,6 +3,7 @@
 #include "../libgitlevtbus/src/gitlmodule.h"
 #include "gitlupdateuievt.h"
 
+#include <algorithm>
 #include <functional>
 #include <QStringList>
 #include <QMap>
@@ -24,10 +25,15 @@ public:
         this->append(rcStr);
     }
 
+    /// A listener fires when an update carries ALL of these parameters, so the list is
+    /// really a set: sort it and drop duplicates, so that {"a","b"}, {"b","a"} and
+    /// {"a","b","a"} all name the same listener.
     ParamNameList(const QStringList& rcStrList)
     {
         foreach(const QString& str, rcStrList)
             this->append(str);
+        this->sort();
+        this->removeDuplicates();
     }
 
 
@@ -37,15 +43,10 @@ public:
             return true;
         if(this->size() > cOther.size())
             return false;
-        int iSize = this->size();
-
-        for(int i = 0; i < iSize; i++)
-        {
-            if(this->at(i) < cOther.at(i))
-                return true;
-        }
-
-        return false;
+        /// same size: compare element by element. The first element that differs decides,
+        /// in either direction, so this is a strict weak ordering as QMap requires.
+        return std::lexicographical_compare(this->begin(), this->end(),
+                                            cOther.begin(), cOther.end());
     }
 };
 
